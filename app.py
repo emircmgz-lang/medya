@@ -27,7 +27,9 @@ if not API_KEY:
     st.stop()
 else:
     genai.configure(api_key=API_KEY)
-   model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"temperature": 0.4})
+    # Model 1.5-flash olarak ayarlandı ve boşluklar düzeltildi
+    model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"temperature": 0.4})
+
 st.title("Yapay Zeka Sosyal Medya Ajansı 🚀")
 
 # --- SEKMELER ---
