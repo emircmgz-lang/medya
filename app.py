@@ -61,10 +61,12 @@ uploaded_video = st.file_uploader("Videonuzu yükleyerek yapay zekanın doğruda
 def ai_kapsamli_analiz(platform, saat, konu, takipci, sure, video_file_path=None):
     sure_metni = f"{sure} saniye" if sure else "Görsel/Metin içeriği (Süre yok)"
     
-    prompt = f"""
-    Sen uzman bir sosyal medya algoritma analisti ve içerik stratejistisin. 
-    Eğer bu isteğe bir video eklendiyse, videoyu BAŞTAN SONA İZLE. Işık, kurgu hızı, ilk 3 saniye (hook), ses ve konuyu analiz et.
-    Eğer sadece metin varsa, metin üzerinden strateji kur.
+prompt = f"""
+    Sen uzman bir sosyal medya algoritma analisti, vücut dili uzmanı ve içerik stratejistisin. 
+    Eğer bu isteğe bir video eklendiyse, videoyu BAŞTAN SONA İZLE. 
+    1. TEKNİK: Işık, kurgu hızı, ilk 3 saniye (hook), ses kalitesi ve kurgu ritmini analiz et.
+    2. PSİKOLOJİK VE KİŞİ ANALİZİ: Videodaki kişiyi (veya dış sesi) derinlemesine analiz et. Vücut dili, ses tonu, mimikleri, enerjisi ve izleyiciye geçirdiği "vibe" (aura) nedir? Özgüvenli mi, samimi mi, otoriter mi yoksa bir şeyleri "manifest" mi ediyor? 
+    Kullanıcı açıklamaya belirli kelimeleri (örneğin manifest, motivasyon vb.) yazmasa bile, videonun alt metninde ve kişinin enerjisinde bu varsa BUNU TESPİT ET ve analizine/hashtaglerine yansıt.
     
     [İÇERİK DETAYLARI]
     Platform: {platform}
@@ -81,8 +83,9 @@ def ai_kapsamli_analiz(platform, saat, konu, takipci, sure, video_file_path=None
         "yorum_sayisi": 120,
         "yeni_takipci": 45,
         "sure_tahmini": "24 - 48 Saat İçinde (Hızlı Viral) 🚀",
-        "ai_yorumu": "Videonun ilk 3 saniyesi çok güçlü/zayıf. Kurgu ritmi TikTok için ideal. Şuraları düzeltirsen daha iyi olur...",
-        "hashtagler": "#trend #viral"
+        "kisi_ve_vibe_analizi": "Videodaki kişinin ses tonu çok net ve göz teması mükemmel. Açıklamada belirtilmese bile net bir 'manifesting' ve 'ana karakter' (main character) enerjisi yayıyor...",
+        "ai_yorumu": "İlk 3 saniyelik hook çok güçlü. Teknik olarak şu kısımları hızlandırırsan kitleyi daha iyi tutarsın...",
+        "hashtagler": "#trend #viral #manifest #ozguven (Kişinin enerjisine uygun gizli hashtagleri de ekle)"
     }}
     """
     
@@ -166,7 +169,11 @@ if st.button("🚀 İçeriği Analiz Et", type="primary", use_container_width=Tr
             col3.metric(label="Tahmini Yorum", value=f"{sonuclar.get('yorum_sayisi', 0):,}")
             col4.metric(label="Yeni Takipçi", value=f"{sonuclar.get('yeni_takipci', 0):,}")
 
-            st.subheader("🤖 Stratejik Geri Bildirim")
+           st.subheader("👤 Kişi ve Enerji (Vibe) Analizi")
+            # JSON'dan yeni eklediğimiz kişi analizi verisini çekiyoruz
+            st.info(sonuclar.get('kisi_ve_vibe_analizi', 'Kişi veya enerji analizi yapılamadı.'))
+
+            st.subheader("🤖 Teknik ve Stratejik Yorum")
             st.write(sonuclar.get('ai_yorumu', 'Yorum alınamadı.'))
             
-            st.caption(f"Önerilen Hashtagler: {sonuclar.get('hashtagler', '')}")
+            st.caption(f"🎯 Önerilen Hashtagler: {sonuclar.get('hashtagler', '')}")
