@@ -1,15 +1,10 @@
 import streamlit as st
-import requests
-import os
 
 st.set_page_config(page_title="Viral Analiz", layout="centered")
 
 st.title("Viral Analiz Aracı")
 
-st.info("Bu araç içerik fikrini analiz eder ve tahmini performans verir.")
-
-# API KEY
-API_KEY = os.environ.get("HF_API_KEY")
+st.info("İçerik fikrini analiz eder, tahmini performans ve hashtag önerir. Giriş sistemi yakında eklenecek.")
 
 # Platformlar
 video_platformlar = ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube Video"]
@@ -27,81 +22,89 @@ if platform in video_platformlar:
 else:
     sure = None
 
-# Hugging Face API
-def hf_analiz(text):
-    try:
-        response = requests.post(
-            "https://api-inference.huggingface.co/models/bigscience/bloomz-560m",
-            headers={"Authorization": f"Bearer {API_KEY}"},
-            json={
-                "inputs": f"""
-                Bu içerik fikrini analiz et:
-
-                {text}
-
-                Viral skor, kısa yorum ve 5 hashtag ver.
-                """
-            }
-        )
-
-        if response.status_code != 200:
-            return f"Hata kodu: {response.status_code} - {response.text}"
-
-        data = response.json()
-
-        if isinstance(data, list) and "generated_text" in data[0]:
-            return data[0]["generated_text"]
-        else:
-            return str(data)
-
-    except Exception as e:
-        return str(e)
-
-# Basit analiz (fallback)
-def basic_analiz(text):
-    text = text.lower()
-    if any(k in text for k in ["şok", "ifşa", "vs", "en iyi", "nasıl"]):
-        return "Yüksek potansiyel içerik"
-    return "Ortalama içerik"
-
-# Tahmin
-def tahmin(skor, takipci):
-    like = int((takipci * 0.05) * (skor / 100))
-    yorum = int(like * 0.1)
-    yeni = int(like * 0.05)
-    return like, yorum, yeni
-
-# ANALİZ
-if st.button("Analiz Et"):
+# AKILLI ANALİZ
+def analiz_et(text, saat, sure, takipci):
 
     skor = 50
 
+    text = text.lower()
+
+    # 🔥 viral kelimeler
+    viral_kelimeler = [
+        "şok", "ifşa", "vs", "en iyi", "en kötü",
+        "nasıl", "denedim", "challenge", "trend",
+        "bedava", "hızlı", "inanılmaz", "gizli"
+    ]
+
+    if any(k in text for k in viral_kelimeler):
+        skor += 15
+
+    # saat
     if 18 <= saat <= 22:
         skor += 20
     elif 0 <= saat <= 6:
         skor -= 15
 
+    # süre
     if sure:
         if sure < 15:
             skor += 10
         elif sure > 60:
             skor -= 10
 
-    if takipci > 10000:
+    # takipçi etkisi
+    if takipci < 1000:
+        skor -= 5
+    elif takipci > 10000:
         skor += 10
 
     skor = max(0, min(100, skor))
 
-    ai = hf_analiz(konu)
-    basic = basic_analiz(konu)
+    return skor
 
+# HASHTAG
+def hashtag_uret(text):
+    words = text.lower().split()
+
+    base_tags = ["#keşfet", "#viral", "#trend"]
+
+    extra = []
+    for w in words:
+        if len(w) > 3:
+            extra.append("#" + w)
+
+    return " ".join(base_tags + extra[:5])
+
+# TAHMİN
+def tahmin(skor, takipci):
+    like = int((takipci * 0.05) * (skor / 100))
+    yorum = int(like * 0.1)
+    yeni = int(like * 0.05)
+    return like, yorum, yeni
+
+# YORUM
+def yorumla(skor):
+    if skor >= 75:
+        return "Yüksek viral potansiyel"
+    elif skor >= 50:
+        return "Ortalama performans beklenir"
+    else:
+        return "Düşük performans, içerik geliştirilmeli"
+
+# ANALİZ BUTONU
+if st.button("Analiz Et"):
+
+    skor = analiz_et(konu, saat, sure, takipci)
     like, yorum, yeni = tahmin(skor, takipci)
+    tags = hashtag_uret(konu)
+    yorum_text = yorumla(skor)
 
     st.subheader("Sonuç")
+
     st.write(f"Viral Skor: {skor}")
     st.write(f"Tahmini Beğeni: {like}")
     st.write(f"Tahmini Yorum: {yorum}")
     st.write(f"Tahmini Yeni Takipçi: {yeni}")
 
-    st.write("Yorum:", basic)
-    st.text(ai)
+    st.write("Yorum:", yorum_text)
+    st.write("Hashtagler:", tags)
