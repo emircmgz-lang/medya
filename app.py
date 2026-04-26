@@ -31,7 +31,7 @@ else:
 def hf_analiz(text):
     try:
         response = requests.post(
-            "https://api-inference.huggingface.co/models/google/flan-t5-large",
+            "https://api-inference.huggingface.co/models/bigscience/bloomz-560m",
             headers={"Authorization": f"Bearer {API_KEY}"},
             json={
                 "inputs": f"""
