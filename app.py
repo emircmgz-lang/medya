@@ -29,9 +29,6 @@ else:
 
 # Hugging Face API
 def hf_analiz(text):
-    if not API_KEY:
-        return "API key yok"
-
     try:
         response = requests.post(
             "https://api-inference.huggingface.co/models/google/flan-t5-large",
@@ -46,10 +43,19 @@ def hf_analiz(text):
                 """
             }
         )
+
+        if response.status_code != 200:
+            return f"Hata kodu: {response.status_code} - {response.text}"
+
         data = response.json()
-        return data[0]["generated_text"]
-    except:
-        return "AI çalışmadı"
+
+        if isinstance(data, list) and "generated_text" in data[0]:
+            return data[0]["generated_text"]
+        else:
+            return str(data)
+
+    except Exception as e:
+        return str(e)
 
 # Basit analiz (fallback)
 def basic_analiz(text):
