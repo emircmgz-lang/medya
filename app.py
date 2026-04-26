@@ -26,6 +26,7 @@ if not API_KEY:
     st.stop()
 else:
     genai.configure(api_key=API_KEY)
+    # Model ayarı
     model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"temperature": 0.4})
 
 # -------------------------------------------------------------------
@@ -33,7 +34,7 @@ else:
 # -------------------------------------------------------------------
 
 st.title("Viral Analiz Aracı 🚀")
-st.info("İçerik fikrini yazın veya doğrudan videonuzu yükleyin! Yapay Zeka videoyu izleyip algoritma analizi yapsın.")
+st.info("İçerik fikrini yazın veya doğrudan videonuzu yükleyin! Yapay Zeka videoyu izleyip algoritma ve enerji analizi yapsın.")
 
 # Platform ve Metrikler
 col1, col2 = st.columns(2)
@@ -52,16 +53,16 @@ with col2:
 
 konu = st.text_area("İçerik Konusu / Açıklaması", placeholder="Örn: 30 günde nasıl İngilizce öğrendim? (Videonun metni veya fikri)")
 
-# YENİ: Video Yükleme Alanı
+# Video Yükleme Alanı
 st.divider()
 st.subheader("🎥 Video Yükle (İsteğe Bağlı)")
-uploaded_video = st.file_uploader("Videonuzu yükleyerek yapay zekanın doğrudan görüntü ve sesleri analiz etmesini sağlayın.", type=["mp4", "mov", "avi"])
+uploaded_video = st.file_uploader("Videonuzu yükleyerek yapay zekanın doğrudan görüntü, ses ve VİDEODAKİ KİŞİNİN ENERJİSİNİ analiz etmesini sağlayın.", type=["mp4", "mov", "avi"])
 
-# YAPAY ZEKA TAM KAPSAMLI ANALİZ FONKSİYONU
+# YAPAY ZEKA TAM KAPSAMLI ANALİZ FONKSİYONU (GİRİNTİLER DÜZELTİLDİ)
 def ai_kapsamli_analiz(platform, saat, konu, takipci, sure, video_file_path=None):
     sure_metni = f"{sure} saniye" if sure else "Görsel/Metin içeriği (Süre yok)"
     
-prompt = f"""
+    prompt = f"""
     Sen uzman bir sosyal medya algoritma analisti, vücut dili uzmanı ve içerik stratejistisin. 
     Eğer bu isteğe bir video eklendiyse, videoyu BAŞTAN SONA İZLE. 
     1. TEKNİK: Işık, kurgu hızı, ilk 3 saniye (hook), ses kalitesi ve kurgu ritmini analiz et.
@@ -85,20 +86,18 @@ prompt = f"""
         "sure_tahmini": "24 - 48 Saat İçinde (Hızlı Viral) 🚀",
         "kisi_ve_vibe_analizi": "Videodaki kişinin ses tonu çok net ve göz teması mükemmel. Açıklamada belirtilmese bile net bir 'manifesting' ve 'ana karakter' (main character) enerjisi yayıyor...",
         "ai_yorumu": "İlk 3 saniyelik hook çok güçlü. Teknik olarak şu kısımları hızlandırırsan kitleyi daha iyi tutarsın...",
-        "hashtagler": "#trend #viral #manifest #ozguven (Kişinin enerjisine uygun gizli hashtagleri de ekle)"
+        "hashtagler": "#trend #viral #manifest #ozguven"
     }}
     """
     
     gemini_file = None
     try:
-        # İstek içeriğini hazırlıyoruz (Video varsa videoyu da ekleyeceğiz)
         request_contents = [prompt]
 
+        # Video varsa sisteme yükleyip işlenmesini bekle
         if video_file_path:
-            # Videoyu Google API'ye yüklüyoruz
             gemini_file = genai.upload_file(path=video_file_path)
             
-            # Videonun işlenmesini bekliyoruz (Bazen birkaç saniye sürer)
             while gemini_file.state.name == "PROCESSING":
                 time.sleep(2)
                 gemini_file = genai.get_file(gemini_file.name)
@@ -108,11 +107,11 @@ prompt = f"""
                 
             request_contents = [gemini_file, prompt]
 
-        # Gemini'ye Gönderiyoruz
+        # Modele gönder ve yanıtı al
         response = model.generate_content(request_contents)
         raw_text = response.text
         
-        # JSON'ı Çekiyoruz
+        # Sadece JSON kısmını ayıkla
         match = re.search(r'\{.*\}', raw_text, re.DOTALL)
         if match:
             return json.loads(match.group(0))
@@ -124,9 +123,12 @@ prompt = f"""
         return None
         
     finally:
-        # ÖNEMLİ: İşlem bitince videoyu Google sunucularından siliyoruz (Veri Güvenliği)
+        # Hata olsa da olmasa da videoyu Google'dan sil
         if gemini_file:
-            genai.delete_file(gemini_file.name)
+            try:
+                genai.delete_file(gemini_file.name)
+            except:
+                pass
 
 # --- ANALİZ BUTONU VE SONUÇ EKRANI ---
 if st.button("🚀 İçeriği Analiz Et", type="primary", use_container_width=True):
@@ -134,30 +136,29 @@ if st.button("🚀 İçeriği Analiz Et", type="primary", use_container_width=Tr
     if not konu and not uploaded_video:
         st.warning("Lütfen ya bir içerik konusu yazın ya da bir video yükleyin!")
     else:
-        # Analiz durumu ekranı
         with st.status("Yapay Zeka Çalışıyor...", expanded=True) as status:
             temp_path = None
             
+            # Video eklendiyse geçici olarak kaydet
             if uploaded_video:
                 st.write("📥 Video sisteme yükleniyor...")
-                # Streamlit'teki videoyu geçici bir dosyaya kaydediyoruz
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
                     tmp.write(uploaded_video.read())
                     temp_path = tmp.name
-                st.write("👀 Gemini videoyu izliyor ve analiz ediyor (Bu işlem videonun uzunluğuna göre 15-30 saniye sürebilir)...")
+                st.write("👀 Gemini videoyu izliyor ve enerjiyi analiz ediyor (Bu işlem 15-30 sn sürebilir)...")
             else:
                 st.write("🧠 İçerik fikri algoritmalara göre değerlendiriliyor...")
                 
-            # Analizi Başlat
+            # Analiz fonksiyonunu çağır
             sonuclar = ai_kapsamli_analiz(platform, saat, konu, takipci, sure, temp_path)
             
-            # İşlem bitince bilgisayardaki geçici dosyayı temizliyoruz
+            # İşlem bitince bilgisayardaki geçici dosyayı temizle
             if temp_path and os.path.exists(temp_path):
                 os.remove(temp_path)
                 
             status.update(label="Analiz Tamamlandı!", state="complete", expanded=False)
             
-        # Sonuçları Ekrana Basma
+        # Sonuçları ekrana yansıt
         if sonuclar:
             st.success("İşte Yapay Zeka'nın Gözünden Videon/İçeriğin!")
             
@@ -169,8 +170,7 @@ if st.button("🚀 İçeriği Analiz Et", type="primary", use_container_width=Tr
             col3.metric(label="Tahmini Yorum", value=f"{sonuclar.get('yorum_sayisi', 0):,}")
             col4.metric(label="Yeni Takipçi", value=f"{sonuclar.get('yeni_takipci', 0):,}")
 
-           st.subheader("👤 Kişi ve Enerji (Vibe) Analizi")
-            # JSON'dan yeni eklediğimiz kişi analizi verisini çekiyoruz
+            st.subheader("👤 Kişi ve Enerji (Vibe) Analizi")
             st.info(sonuclar.get('kisi_ve_vibe_analizi', 'Kişi veya enerji analizi yapılamadı.'))
 
             st.subheader("🤖 Teknik ve Stratejik Yorum")
