@@ -5,8 +5,8 @@ import re
 import tempfile
 import time
 
-# 1. Sayfa Ayarları
-st.set_page_config(page_title="Viral Analiz & Marka Koçu", layout="centered", page_icon="🚀")
+# 1. Sayfa Ayarları (Geniş ekran kullanımına uygun hale getirdik)
+st.set_page_config(page_title="Yapay Zeka Sosyal Medya Ajansı", layout="centered", page_icon="🚀")
 
 # 2. Kütüphane Yükleme Kontrolü
 try:
@@ -27,13 +27,13 @@ if not API_KEY:
     st.stop()
 else:
     genai.configure(api_key=API_KEY)
-    # Model 1.5-flash olarak ayarlandı ve boşluklar düzeltildi
-    model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"temperature": 0.4})
+    # Hızlı ve güncel modelimiz devrede
+    model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"temperature": 0.5})
 
 st.title("Yapay Zeka Sosyal Medya Ajansı 🚀")
 
-# --- SEKMELER ---
-tab1, tab2 = st.tabs(["🚀 İçerik & Video Analizi", "🔍 Profil & Marka Check-up"])
+# --- 3 HARİKA SEKME ---
+tab1, tab2, tab3 = st.tabs(["🚀 İçerik & Video Analizi", "🔍 Profil Check-up", "🎣 Kanca & Senaryo Üretici"])
 
 # ==============================================================================
 # SEKME 1: İÇERİK VE VİDEO ANALİZİ
@@ -201,3 +201,83 @@ with tab2:
                 
                 st.subheader("🚨 Acil Eylem Planı")
                 st.error(res.get('acil_duzeltmeler', ''))
+
+# ==============================================================================
+# SEKME 3: KANCA (HOOK) VE SENARYO ÜRETİCİSİ
+# ==============================================================================
+with tab3:
+    st.subheader("🎬 Boş Sayfa Sendromuna Son: Senaryonu Oluştur!")
+    st.markdown("Videonun konusunu yaz, yapay zeka sana en iyi kancaları ve saniye saniye çekim senaryosunu versin.")
+    
+    s_konu = st.text_input("Videonun Ana Konusu", placeholder="Örn: Evde spor yapmanın faydaları, Kodlama öğrenme taktikleri...")
+    
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        s_ton = st.selectbox("Videonun Duygusu / Tonu", ["Gizemli & Merak Uyandırıcı", "Enerjik & Eğlenceli", "Otoriter & Bilgi Verici", "Samimi & Vlog Tarzı", "Şok Edici / İfşa"])
+    with col_s2:
+        s_hedef = st.text_input("Hedef Kitle (Kime hitap ediyorsun?)", placeholder="Örn: Yeni başlayanlar, İş insanları, Öğrenciler...")
+
+    def ai_senaryo_yazici(konu, ton, hedef):
+        prompt = f"""
+        Sen TikTok, Reels ve Shorts için viral içerikler üreten usta bir Metin Yazarı ve Yönetmensin.
+        Konu: {konu}
+        Ton: {ton}
+        Hedef Kitle: {hedef}
+        
+        Bana bu kitleyi ilk 3 saniyede yakalayacak 3 farklı 'Kanca (Hook)' üret ve seçtiğin en iyi kanca üzerinden saniye saniye bir video çekim senaryosu hazırla.
+        
+        SADECE JSON FORMATINDA CEVAP VER:
+        {{
+            "kancalar": [
+                {{"tip": "Merak Kancası", "cumle": "Kimsenin bilmediği X sırrı..."}},
+                {{"tip": "Negatif Kanca", "cumle": "Eğer Y yapıyorsan her şeyi yanlış yapıyorsun!"}},
+                {{"tip": "Hedef Odaklı", "cumle": "Z olmak isteyenler bu videoyu kaydetsin."}}
+            ],
+            "senaryo": [
+                {{"saniye": "0-3 sn", "gorsel": "Kameraya çok yakın çekim, şaşkın yüz ifadesi.", "ses": "İlk kanca cümlesi okunur."}},
+                {{"saniye": "3-10 sn", "gorsel": "Arka planda ürün/konu gösterilir.", "ses": "Sorunun tespiti yapılır..."}},
+                {{"saniye": "10-25 sn", "gorsel": "Ekrana maddeler gelir.", "ses": "Çözüm anlatılır..."}},
+                {{"saniye": "25-30 sn", "gorsel": "Kamerayı işaret et.", "ses": "Daha fazlası için takip et!"}}
+            ],
+            "yonetmen_tavsiyesi": "Videoyu çok hızlı cut'larla (kesmelerle) kurgula, sessiz boşluk bırakma."
+        }}
+        """
+        try:
+            response = model.generate_content([prompt])
+            match = re.search(r'\{.*\}', response.text, re.DOTALL)
+            return json.loads(match.group(0)) if match else None
+        except Exception as e:
+            st.error(f"Hata: {str(e)}")
+            return None
+
+    if st.button("🎬 Kanca ve Senaryo Üret", type="primary", use_container_width=True):
+        if not s_konu:
+            st.warning("Lütfen videonun konusunu yazın!")
+        else:
+            with st.spinner("Usta Yönetmen Senaryonu Yazıyor..."):
+                senaryo_sonuc = ai_senaryo_yazici(s_konu, s_ton, s_hedef)
+                
+            if senaryo_sonuc:
+                st.success("Senaryo Çekime Hazır!")
+                
+                # Kancalar Bölümü (3 Farklı Renkli Kutu)
+                st.subheader("🎣 İlk 3 Saniye Kancaları (Bunlardan birini seç)")
+                k1, k2, k3 = st.columns(3)
+                kancalar = senaryo_sonuc.get("kancalar", [])
+                if len(kancalar) == 3:
+                    k1.info(f"**{kancalar[0]['tip']}**\n\n{kancalar[0]['cumle']}")
+                    k2.success(f"**{kancalar[1]['tip']}**\n\n{kancalar[1]['cumle']}")
+                    k3.warning(f"**{kancalar[2]['tip']}**\n\n{kancalar[2]['cumle']}")
+                
+                st.divider()
+                
+                # Senaryo Tablosu
+                st.subheader("🎥 Saniye Saniye Çekim Planı")
+                senaryo_adimlari = senaryo_sonuc.get("senaryo", [])
+                for adim in senaryo_adimlari:
+                    with st.expander(f"⏱️ {adim['saniye']}", expanded=True):
+                        st.markdown(f"👁️ **Ekranda Ne Görünecek:** {adim['gorsel']}")
+                        st.markdown(f"🎙️ **Dış Ses / Konuşma:** {adim['ses']}")
+                
+                st.subheader("🎬 Yönetmenin Notu")
+                st.error(senaryo_sonuc.get("yonetmen_tavsiyesi", ""))
