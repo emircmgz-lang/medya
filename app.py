@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 
-# 1. Sayfa Ayarları (En üstte olmak zorunda)
+# 1. Sayfa Ayarları
 st.set_page_config(page_title="Viral Analiz", layout="centered", page_icon="🚀")
 
 # 2. Kütüphane Yükleme Kontrolü
@@ -11,7 +11,7 @@ except ModuleNotFoundError:
     st.error("🚨 HATA: 'google-generativeai' kütüphanesi bulunamadı! requirements.txt dosyanızı kontrol edin.")
     st.stop()
 
-# 3. API Anahtarı Kontrolü (Hem Cloud hem Yerel için uyumlu)
+# 3. API Anahtarı Kontrolü
 try:
     API_KEY = st.secrets["GEMINI_API_KEY"]
 except (KeyError, FileNotFoundError):
@@ -21,16 +21,16 @@ if not API_KEY:
     st.error("🚨 HATA: API Anahtarı bulunamadı! Lütfen Streamlit Cloud Secrets bölümüne eklediğinizden emin olun.")
     st.stop()
 else:
-    # API'yi yapılandır
+    # API'yi yapılandır (GÜNCEL MODEL)
     genai.configure(api_key=API_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash') # veya 'gemini-2.0-flash'
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
 # -------------------------------------------------------------------
 # KULLANICI ARAYÜZÜ VE MANTIK
 # -------------------------------------------------------------------
 
 st.title("Viral Analiz Aracı 🚀")
-st.info("İçerik fikrini analiz eder, AI destekli yorum + tahmini performans verir.")
+st.info("İçerik fikrini analiz eder, AI destekli yorum + tahmini performans ve süre verir.")
 
 # Platformlar
 video_platformlar = ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube Video"]
@@ -41,13 +41,12 @@ saat = st.slider("Paylaşım Saati", 0, 23, 18)
 konu = st.text_input("İçerik Konusu")
 takipci = st.number_input("Takipçi Sayın", 0, 10000000, 1000)
 
-# Süre sadece video platformlarda
 if platform in video_platformlar:
     sure = st.number_input("Video Süresi (sn)", 1, 1000, 60)
 else:
     sure = None
 
-# GEMINI API Fonksiyonu (Yeni güncel kütüphane ile)
+# GEMINI API Fonksiyonu
 def ai_analiz(text):
     try:
         prompt = f"""
@@ -65,7 +64,6 @@ def ai_analiz(text):
     except Exception as e:
         return f"AI Exception: {str(e)}"
 
-# Fallback analiz (Yapay zeka çökse bile çalışacak temel analiz)
 def basic_analiz(text):
     text = text.lower()
     if any(k in text for k in ["şok", "ifşa", "vs", "en iyi", "nasıl", "trend", "challenge"]):
@@ -75,23 +73,19 @@ def basic_analiz(text):
 # Skor hesaplama algoritması
 def skor_hesapla(text, saat, sure, takipci):
     skor = 50
-
     if 18 <= saat <= 22:
         skor += 20
     elif 0 <= saat <= 6:
         skor -= 15
-
     if sure:
         if sure < 15:
             skor += 10
         elif sure > 60:
             skor -= 10
-
     if takipci > 10000:
         skor += 10
     elif takipci < 1000:
         skor -= 5
-
     return max(0, min(100, skor))
 
 # Tahmin algoritması
@@ -101,24 +95,39 @@ def tahmin(skor, takipci):
     yeni = int(like * 0.05)
     return like, yorum, yeni
 
+# YENİ: Süre Tahmini Algoritması
+def zaman_tahmini(skor):
+    if skor >= 85:
+        return "24 - 48 Saat İçinde (Hızlı Viral) 🚀"
+    elif skor >= 70:
+        return "3 - 5 Gün İçinde (Güçlü Yükseliş) 📈"
+    elif skor >= 50:
+        return "1 - 2 Hafta İçinde (Organik Büyüme) 🌱"
+    else:
+        return "1 Ay ve Üzeri (Uzun Vadeli/Yavaş) 🐢"
+
 # --- ANALİZ BUTONU VE SONUÇ EKRANI ---
 if st.button("Analiz Et", type="primary"):
     
     if not konu:
         st.warning("Lütfen analiz etmek için bir içerik konusu girin!")
     else:
-        # Arka planda hesaplamalar yapılırken ekranda dönen animasyon gösterelim
         with st.spinner("Yapay Zeka İçeriği Analiz Ediyor..."):
+            # Hesaplamalar
             skor = skor_hesapla(konu, saat, sure, takipci)
             like, yorum, yeni = tahmin(skor, takipci)
+            hedef_sure = zaman_tahmini(skor) # Zamanı hesapla
+            
             ai = ai_analiz(konu)
             basic = basic_analiz(konu)
 
         st.success("Analiz Tamamlandı!")
-        st.divider() # Araya şık bir çizgi çeker
+        st.divider()
+
+        # Süre tahminini en üste dikkat çekici şekilde koyalım
+        st.info(f"⏳ **Tahmini Rakamlara Ulaşma Süresi:** {hedef_sure}")
 
         st.subheader("📊 Sayısal Tahminler")
-        # Sonuçları yan yana güzel metrik kutuları içinde gösterelim
         col1, col2, col3, col4 = st.columns(4)
         col1.metric(label="Algoritma Skoru", value=skor)
         col2.metric(label="Beğeni", value=like)
@@ -126,6 +135,6 @@ if st.button("Analiz Et", type="primary"):
         col4.metric(label="Yeni Takipçi", value=yeni)
 
         st.subheader("🤖 Gemini Yapay Zeka Yorumu")
-        st.info(ai)
+        st.write(ai) # st.info yerine düz yazı daha temiz durabilir uzun metinlerde
 
         st.caption(f"Sistem Fallback Yorumu: {basic}")
