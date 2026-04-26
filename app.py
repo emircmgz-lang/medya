@@ -1,17 +1,12 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
 import os
-
-# API
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-pro")
 
 st.set_page_config(page_title="Viral Analiz", layout="centered")
 
 st.title("Viral Analiz Aracı")
 
-st.info("İçerik fikrini analiz eder, AI + tahmini performans verir.")
+st.info("İçerik fikrini analiz eder, AI destekli yorum + tahmini performans verir.")
 
 # Platformlar
 video_platformlar = ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube Video"]
@@ -22,42 +17,61 @@ saat = st.slider("Paylaşım Saati", 0, 23, 18)
 konu = st.text_input("İçerik Konusu")
 takipci = st.number_input("Takipçi Sayın", 0, 10000000, 1000)
 
-# Süre
+# Süre sadece video platformlarda
 if platform in video_platformlar:
     sure = st.number_input("Video Süresi (sn)", 1, 1000, 60)
 else:
     sure = None
 
-# AI ANALİZ (GEMINI)
+# GEMINI API (HTTP)
 def ai_analiz(text):
     try:
-        prompt = f"""
-        Bu içerik fikrini analiz et:
+        API_KEY = os.environ.get("GEMINI_API_KEY")
 
-        {text}
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key={API_KEY}"
 
-        Şu formatta cevap ver:
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": f"""
+Bu içerik fikrini analiz et:
 
-        Viral Skor: (0-100)
-        İzlenme Potansiyeli: (0-100)
-        Kısa Yorum:
-        Hashtagler: #...
-        """
+{text}
 
-        response = model.generate_content(prompt)
-        return response.text
+Şu formatta cevap ver:
+Viral Skor: (0-100)
+İzlenme Potansiyeli: (0-100)
+Kısa Yorum:
+Hashtagler: #...
+"""
+                        }
+                    ]
+                }
+            ]
+        }
+
+        response = requests.post(url, json=payload)
+
+        if response.status_code != 200:
+            return f"AI Hata: {response.status_code} - {response.text}"
+
+        data = response.json()
+
+        return data["candidates"][0]["content"]["parts"][0]["text"]
 
     except Exception as e:
-        return f"AI hata: {str(e)}"
+        return f"AI Exception: {str(e)}"
 
-# FALLBACK (AI çalışmazsa)
+# Fallback analiz
 def basic_analiz(text):
     text = text.lower()
-    if any(k in text for k in ["şok", "ifşa", "vs", "en iyi", "nasıl"]):
+    if any(k in text for k in ["şok", "ifşa", "vs", "en iyi", "nasıl", "trend", "challenge"]):
         return "Yüksek potansiyel içerik"
     return "Ortalama içerik"
 
-# SKOR
+# Skor hesaplama
 def skor_hesapla(text, saat, sure, takipci):
     skor = 50
 
@@ -74,17 +88,19 @@ def skor_hesapla(text, saat, sure, takipci):
 
     if takipci > 10000:
         skor += 10
+    elif takipci < 1000:
+        skor -= 5
 
     return max(0, min(100, skor))
 
-# TAHMİN
+# Tahmin
 def tahmin(skor, takipci):
     like = int((takipci * 0.05) * (skor / 100))
     yorum = int(like * 0.1)
     yeni = int(like * 0.05)
     return like, yorum, yeni
 
-# BUTON
+# ANALİZ
 if st.button("Analiz Et"):
 
     skor = skor_hesapla(konu, saat, sure, takipci)
