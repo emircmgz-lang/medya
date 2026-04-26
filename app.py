@@ -1,29 +1,28 @@
-import google.generativeai as genai
+import streamlit as st
 import os
 
-# ai_analiz fonksiyonunu aşağıdaki ile tamamen değiştirebilirsiniz:
-def ai_analiz(text):
-    try:
-        API_KEY = os.environ.get("GEMINI_API_KEY")
-        if not API_KEY:
-            return "AI Hata: API Anahtarı bulunamadı."
-            
-        genai.configure(api_key=API_KEY)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
-        prompt = f"""
-        Bu içerik fikrini analiz et:
-        {text}
+# 1. Sayfa ayarları her şeyden önce gelmeli
+st.set_page_config(page_title="Viral Analiz", layout="centered")
+st.title("Viral Analiz Aracı 🚀")
 
-        Şu formatta cevap ver:
-        Viral Skor: (0-100)
-        İzlenme Potansiyeli: (0-100)
-        Kısa Yorum:
-        Hashtagler: #...
-        """
-        
-        response = model.generate_content(prompt)
-        return response.text
+# 2. Kütüphane yükleme kontrolü
+try:
+    import google.generativeai as genai
+except ModuleNotFoundError:
+    st.error("🚨 HATA: 'google-generativeai' kütüphanesi bulunamadı! requirements.txt dosyanızı kontrol edin.")
+    st.stop()
 
-    except Exception as e:
-        return f"AI Exception: {str(e)}"
+# 3. API Anahtarı kontrolü
+# Streamlit Cloud'da st.secrets kullanmak daha güvenlidir
+try:
+    API_KEY = st.secrets["GEMINI_API_KEY"]
+except (KeyError, FileNotFoundError):
+    API_KEY = os.environ.get("GEMINI_API_KEY")
+
+if not API_KEY:
+    st.error("🚨 HATA: API Anahtarı bulunamadı! Lütfen Streamlit Cloud Secrets bölümüne eklediğinizden emin olun.")
+    st.stop()
+else:
+    st.success("✅ Sistem Hazır! API Anahtarı ve Kütüphaneler yüklendi.")
+
+# --- Buradan sonrasına eski kodunuzun geri kalanını (platform seçimi, butonlar vs.) ekleyebilirsiniz ---
