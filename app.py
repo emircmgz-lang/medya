@@ -1,119 +1,81 @@
 import streamlit as st
 from openai import OpenAI
-import os, json, bcrypt
+import os
 
-# API KEY
-os.environ["OPENAI_API_KEY"] = "BURAYA_API_KEY"
-client = OpenAI()
+# OpenAI client
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-# --- USER SYSTEM ---
-def load_users():
-    with open("users.json", "r") as f:
-        return json.load(f)
+st.set_page_config(page_title="Viral Analiz", layout="centered")
 
-def save_users(users):
-    with open("users.json", "w") as f:
-        json.dump(users, f)
+st.title("Viral Analiz Aracı")
 
-def register(username, password):
-    users = load_users()
-    if username in users:
-        return False
-    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    users[username] = hashed
-    save_users(users)
-    return True
+# Kullanıcı inputları
+platform = st.selectbox("Platform", ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube Video"])
+saat = st.slider("Paylaşım Saati", 0, 23, 18)
+konu = st.text_input("Video Konusu")
+sure = st.number_input("Video Süresi (sn)", 1, 1000, 60)
 
-def login(username, password):
-    users = load_users()
-    if username in users:
-        return bcrypt.checkpw(password.encode(), users[username].encode())
-    return False
+# AI analiz fonksiyonu
+def ai_analiz(text):
+    try:
+        response = client.responses.create(
+            model="gpt-5-mini",
+            input=f"""
+            Aşağıdaki video fikrini analiz et:
 
-# --- AI ANALİZ ---
-def ai_analiz(konu):
-    response = client.responses.create(
-        model="gpt-5-mini",
-        input=f"""
-        Bu içerik fikrini analiz et:
-        {konu}
+            {text}
 
-        Viral skor, kısa yorum ve 5 hashtag ver.
-        """
-    )
-    return response.output[0].content[0].text
+            Şu formatta cevap ver:
 
-# --- METRİK TAHMİN ---
+            Viral Skor: (0-100)
+            İzlenme Potansiyeli: (0-100)
+            Kısa Yorum:
+
+            Hashtagler:
+            #hashtag1 #hashtag2 #hashtag3 #hashtag4 #hashtag5
+            """
+        )
+        return response.output[0].content[0].text
+    except Exception as e:
+        return f"Hata: {str(e)}"
+
+# Tahmini metrik
 def tahmin_hesapla(skor):
     like = skor * 10
     yorum = skor * 2
     takipci = skor * 1.5
     return int(like), int(yorum), int(takipci)
 
-# --- UI ---
-st.title("Viral Analiz Platformu")
+# Buton
+if st.button("Analiz Et"):
 
-menu = st.sidebar.selectbox("Menü", ["Giriş", "Kayıt"])
+    skor = 50
 
-if "auth" not in st.session_state:
-    st.session_state.auth = False
+    # Saat etkisi
+    if 18 <= saat <= 22:
+        skor += 20
+    elif 0 <= saat <= 6:
+        skor -= 15
 
-# KAYIT
-if menu == "Kayıt":
-    u = st.text_input("Kullanıcı adı")
-    p = st.text_input("Şifre", type="password")
+    # Süre etkisi
+    if sure < 15:
+        skor += 10
+    elif sure > 60:
+        skor -= 10
 
-    if st.button("Kayıt Ol"):
-        if register(u, p):
-            st.success("Kayıt başarılı")
-        else:
-            st.error("Kullanıcı var")
+    skor = max(0, min(100, skor))
 
-# GİRİŞ
-if menu == "Giriş":
-    u = st.text_input("Kullanıcı adı")
-    p = st.text_input("Şifre", type="password")
+    # AI sonucu
+    ai_sonuc = ai_analiz(konu)
 
-    if st.button("Giriş Yap"):
-        if login(u, p):
-            st.session_state.auth = True
-            st.success("Giriş başarılı")
-        else:
-            st.error("Hatalı giriş")
+    # Tahmini metrik
+    like, yorum, takipci = tahmin_hesapla(skor)
 
-# ANA SİSTEM
-if st.session_state.auth:
+    # Ekran çıktısı
+    st.subheader("Sonuç")
+    st.write(f"Viral Skor: {skor}")
+    st.write(f"Tahmini Beğeni: {like}")
+    st.write(f"Tahmini Yorum: {yorum}")
+    st.write(f"Tahmini Takipçi: {takipci}")
 
-    platform = st.selectbox("Platform", ["TikTok","Instagram","YouTube"])
-    saat = st.slider("Saat", 0, 23, 18)
-    konu = st.text_input("Video konusu")
-    sure = st.number_input("Süre", 1, 1000, 60)
-
-    if st.button("Analiz Et"):
-
-        skor = 50
-
-        if 18 <= saat <= 22:
-            skor += 20
-        elif 0 <= saat <= 6:
-            skor -= 15
-
-        if sure < 15:
-            skor += 10
-        elif sure > 60:
-            skor -= 10
-
-        skor = max(0, min(100, skor))
-
-        ai = ai_analiz(konu)
-
-        like, yorum, takipci = tahmin_hesapla(skor)
-
-        st.subheader("Sonuç")
-
-        st.write(f"Viral Skor: {skor}")
-        st.write(f"Tahmini Beğeni: {like}")
-        st.write(f"Tahmini Yorum: {yorum}")
-        st.write(f"Tahmini Takipçi: {takipci}")
-
-        st.text(ai)
+    st.text(ai_sonuc)

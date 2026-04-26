@@ -1,2 +1,0 @@
-# medya
-projemdir
