@@ -119,4 +119,5 @@ if st.button("Analiz Et", type="primary"):
             
             st.caption(f"Önerilen Hashtagler: {sonuclar.get('hashtagler', '')}")
             
-        else
+        else:
+            st.error("Yapay zeka yanıtı işlenirken bir hata oluştu. Lütfen tekrar deneyin.")
