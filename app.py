@@ -5,15 +5,15 @@ import re
 import tempfile
 import time
 
-# 1. Sayfa Ayarları (Geniş ekran kullanımına uygun hale getirdik)
-st.set_page_config(page_title="Yapay Zeka Sosyal Medya Ajansı", layout="centered", page_icon="🚀")
+# 1. Sayfa Ayarları (Emojiler kaldırıldı)
+st.set_page_config(page_title="AI Sosyal Medya Ajansı", layout="centered")
 
 # 2. Kütüphane Yükleme Kontrolü
 try:
     import google.generativeai as genai
     from PIL import Image
 except ModuleNotFoundError:
-    st.error("🚨 HATA: Gerekli kütüphaneler bulunamadı! requirements.txt dosyanızı kontrol edin.")
+    st.error("HATA: Gerekli kütüphaneler bulunamadı! requirements.txt dosyanızı kontrol edin.")
     st.stop()
 
 # 3. API Anahtarı Kontrolü
@@ -23,17 +23,51 @@ except (KeyError, FileNotFoundError):
     API_KEY = os.environ.get("GEMINI_API_KEY")
 
 if not API_KEY:
-    st.error("🚨 HATA: API Anahtarı bulunamadı!")
+    st.error("HATA: API Anahtarı bulunamadı!")
     st.stop()
 else:
     genai.configure(api_key=API_KEY)
     # Hızlı ve güncel modelimiz devrede
     model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"temperature": 0.5})
 
-st.title("Yapay Zeka Sosyal Medya Ajansı 🚀")
+# --- UYGULAMA BAŞLIĞI ---
+st.title("Yapay Zeka Sosyal Medya Ajansı")
 
-# --- 3 HARİKA SEKME ---
-tab1, tab2, tab3 = st.tabs(["🚀 İçerik & Video Analizi", "🔍 Profil Check-up", "🎣 Kanca & Senaryo Üretici"])
+# --- 4 SEKME ---
+tab_ana, tab1, tab2, tab3 = st.tabs([
+    "Ana Sayfa", 
+    "İçerik Analizi", 
+    "Profil Check-up", 
+    "Senaryo Üretici"
+])
+
+# ==============================================================================
+# ANA SAYFA (KARŞILAMA EKRANI VE VİTRİN)
+# ==============================================================================
+with tab_ana:
+    st.subheader("Hoş Geldiniz! Sosyal Medyayı Birlikte Yönetelim.")
+    st.markdown("""
+    Bu platform, içerik üreticileri ve markalar için özel olarak tasarlanmış **Yapay Zeka Destekli bir Sosyal Medya Asistanıdır.** Arka planda çalışan güçlü algoritma sayesinde videolarınızı yayınlamadan önce test edebilir, marka kimliğinizi oturtabilir ve içerik fikirlerinizi senaryolaştırabilirsiniz.
+    """)
+    
+    st.divider()
+    
+    c1, c2, c3 = st.columns(3)
+    
+    with c1:
+        st.info("### İçerik Analizi\n\nVideonuzu veya içerik fikrinizi yapay zekaya izletin. Size saniyeler içinde tahmini viral skorunu, beğeni sayılarını ve en iyi hashtagleri versin.")
+        
+    with c2:
+        st.success("### Profil Check-up\n\nHedef kitleniz sizi doğru anlıyor mu? Biyografinizi ve profil fotoğrafınızı taratarak marka kimliğinizi optimize edin.")
+        
+    with c3:
+        st.warning("### Senaryo Üretici\n\nBoş sayfa sendromuna son! Konunuzu yazın, sistem size ilk 3 saniye kancalarını (hook) ve çekim senaryosunu saniye saniye hazırlasın.")
+        
+    st.divider()
+    
+    st.subheader("Proje Notları ve Hedefler")
+    st.text_area("Bu alana sayfanın genel hedeflerini, rakip sayfaların isimlerini veya genel 'Ana Temanızı' not alabilirsiniz:", 
+                 placeholder="Örn: Bu ayki hedef 10K takipçi. Rakip sayfa: @ornek_sayfa. Ana renklerim: Siyah ve Sarı...")
 
 # ==============================================================================
 # SEKME 1: İÇERİK VE VİDEO ANALİZİ
@@ -45,7 +79,7 @@ with tab1:
         video_platformlar = ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube Video"]
         post_platformlar = ["Instagram Post", "Facebook Post", "X (Twitter) Post"]
         platform = st.selectbox("Hedef Platform", video_platformlar + post_platformlar, key="plat1")
-        takipci = st.number_input("Mevcut Takipçi Sayın", 0, 10000000, 1000, key="takipci1")
+        takipci = st.number_input("Mevcut Takipçi Sayınız", 0, 10000000, 1000, key="takipci1")
         ses_turu = st.selectbox("Kullanılan Ses/Müzik", ["Trend/Popüler Ses", "Orijinal Ses", "Sadece Konuşma", "Müzik Yok"], key="ses1")
 
     with col2:
@@ -68,7 +102,7 @@ with tab1:
         Platform: {platform}, Takipçi: {takipci}, Saat: {saat}:00, Süre: {sure_metni}, Ses: {ses_turu}, CTA: {cta}, Konu: {konu}.
         Eğer video varsa izle; kurgu, hook, enerji ve vibe analiz et.
         Özellikle videodaki kişinin enerjisi manifest/motivasyon gibi alt metinler içeriyor mu bak.
-        Ayrıca bu içerik için viral olma potansiyeli yüksek, emojili, kancası güçlü bir AÇIKLAMA (Caption) oluştur.
+        Ayrıca bu içerik için viral olma potansiyeli yüksek, etkileyici ve kancası güçlü bir AÇIKLAMA (Caption) oluştur. Emojileri minimumda tut veya hiç kullanma.
 
         JSON formatında cevap ver:
         {{
@@ -79,7 +113,7 @@ with tab1:
             "sure_tahmini": "24-48 Saat",
             "kisi_ve_vibe_analizi": "...",
             "ai_yorumu": "...",
-            "viral_aciklama": "🚀 VİRAL AÇIKLAMA BURAYA GELECEK...",
+            "viral_aciklama": "VİRAL AÇIKLAMA BURAYA GELECEK...",
             "hashtagler": "#trend #viral"
         }}
         """
@@ -102,11 +136,11 @@ with tab1:
             if gemini_file:
                 genai.delete_file(gemini_file.name)
 
-    if st.button("🚀 Videoyu Analiz Et ve Açıklama Yaz", type="primary", use_container_width=True):
+    if st.button("Videoyu Analiz Et ve Açıklama Yaz", type="primary", use_container_width=True):
         if not konu and not uploaded_video:
             st.warning("Lütfen bir konu yazın veya video yükleyin!")
         else:
-            with st.status("Yapay Zeka Videonu İzliyor...", expanded=True) as status:
+            with st.status("Yapay Zeka Videonuzu İzliyor...", expanded=True) as status:
                 temp_path = None
                 if uploaded_video:
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
@@ -120,21 +154,21 @@ with tab1:
             if sonuclar:
                 st.success("Analiz ve Açıklama Oluşturuldu!")
                 
-                st.subheader("✍️ Önerilen Viral Açıklama")
+                st.subheader("Önerilen Viral Açıklama")
                 st.code(sonuclar.get('viral_aciklama', ''), language=None)
                 st.caption(f"Önerilen Hashtagler: {sonuclar.get('hashtagler', '')}")
 
                 st.divider()
-                st.info(f"⏳ **Ulaşım Süresi:** {sonuclar.get('sure_tahmini', '')}")
+                st.info(f"**Ulaşım Süresi:** {sonuclar.get('sure_tahmini', '')}")
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("Viral Skor", sonuclar.get('skor', 0))
                 c2.metric("Beğeni", f"{sonuclar.get('begeni', 0):,}")
                 c3.metric("Yorum", f"{sonuclar.get('yorum_sayisi', 0):,}")
                 c4.metric("Yeni Takipçi", f"{sonuclar.get('yeni_takipci', 0):,}")
 
-                st.subheader("👤 Enerji ve Vibe Analizi")
+                st.subheader("Enerji ve Vibe Analizi")
                 st.write(sonuclar.get('kisi_ve_vibe_analizi', ''))
-                st.subheader("🤖 Algoritma Yorumu")
+                st.subheader("Algoritma Yorumu")
                 st.write(sonuclar.get('ai_yorumu', ''))
 
 # ==============================================================================
@@ -145,14 +179,14 @@ with tab2:
     col_p1, col_p2 = st.columns([1, 1])
     
     with col_p1:
-        p_bio = st.text_area("Profil Biyografin", placeholder="Bio metnini buraya yapıştır...")
-        p_tema = st.text_input("Ana Teman", placeholder="Örn: Yaşam Tarzı, Teknoloji...")
+        p_bio = st.text_area("Profil Biyografiniz", placeholder="Bio metnini buraya yapıştırın...")
+        p_tema = st.text_input("Ana Temanız", placeholder="Örn: Yaşam Tarzı, Teknoloji...")
     
     with col_p2:
-        st.write("🖼️ **Profil Fotoğrafı Analizi**")
-        p_photo = st.file_uploader("Profil fotoğrafını yükle (Vibe ve Profesyonellik Analizi)", type=["jpg", "png", "jpeg"])
+        st.write("**Profil Fotoğrafı Analizi**")
+        p_photo = st.file_uploader("Profil fotoğrafını yükleyin (Vibe ve Profesyonellik Analizi)", type=["jpg", "png", "jpeg"])
 
-    p_videolar = st.text_area("En Çok İzlenen 3 Videonun Konusu", placeholder="Seni neyle tanıdılar?")
+    p_videolar = st.text_area("En Çok İzlenen 3 Videonun Konusu", placeholder="Sizi neyle tanıdılar?")
 
     def ai_profil_analizi(bio, tema, videolar, photo_file=None):
         prompt = f"""
@@ -164,9 +198,9 @@ with tab2:
         {{
             "profil_skoru": 75,
             "biyografi_analizi": "...",
-            "foto_yorumu": "Profil fotoğrafın çok karanlık/profesyonel/samimi...",
+            "foto_yorumu": "Profil fotoğrafınız profesyonel/samimi...",
             "marka_stratejisi": "...",
-            "acil_duzeltmeler": "1. Şunu yap, 2. Bunu yap"
+            "acil_duzeltmeler": "1. Şunu yapın, 2. Bunu yapın"
         }}
         """
         try:
@@ -180,34 +214,34 @@ with tab2:
         except Exception as e:
             return None
 
-    if st.button("🔍 Marka Analizini Başlat", type="primary", use_container_width=True):
+    if st.button("Marka Analizini Başlat", type="primary", use_container_width=True):
         if not p_bio or not p_tema:
             st.warning("Lütfen bio ve tema alanlarını doldurun!")
         else:
-            with st.spinner("Yapay Zeka Profilini İnceliyor..."):
+            with st.spinner("Yapay Zeka Profilinizi İnceliyor..."):
                 res = ai_profil_analizi(p_bio, p_tema, p_videolar, p_photo)
             if res:
                 st.success("Profil Analizi Tamamlandı!")
-                st.metric("🌟 Marka Uyum Skoru", f"% {res.get('profil_skoru', 0)}")
+                st.metric("Marka Uyum Skoru", f"% {res.get('profil_skoru', 0)}")
                 
-                st.subheader("🖼️ Profil Fotoğrafı ve Vibe")
+                st.subheader("Profil Fotoğrafı ve Vibe")
                 st.info(res.get('foto_yorumu', 'Fotoğraf yüklenmedi.'))
                 
-                st.subheader("📝 Biyografi ve Kimlik")
+                st.subheader("Biyografi ve Kimlik")
                 st.write(res.get('biyografi_analizi', ''))
                 
-                st.subheader("🗺️ Yol Haritası")
+                st.subheader("Yol Haritası")
                 st.write(res.get('marka_stratejisi', ''))
                 
-                st.subheader("🚨 Acil Eylem Planı")
+                st.subheader("Acil Eylem Planı")
                 st.error(res.get('acil_duzeltmeler', ''))
 
 # ==============================================================================
 # SEKME 3: KANCA (HOOK) VE SENARYO ÜRETİCİSİ
 # ==============================================================================
 with tab3:
-    st.subheader("🎬 Boş Sayfa Sendromuna Son: Senaryonu Oluştur!")
-    st.markdown("Videonun konusunu yaz, yapay zeka sana en iyi kancaları ve saniye saniye çekim senaryosunu versin.")
+    st.subheader("Boş Sayfa Sendromuna Son: Senaryonuzu Oluşturun")
+    st.markdown("Videonun konusunu yazın, yapay zeka size en iyi kancaları ve saniye saniye çekim senaryosunu versin.")
     
     s_konu = st.text_input("Videonun Ana Konusu", placeholder="Örn: Evde spor yapmanın faydaları, Kodlama öğrenme taktikleri...")
     
@@ -215,7 +249,7 @@ with tab3:
     with col_s1:
         s_ton = st.selectbox("Videonun Duygusu / Tonu", ["Gizemli & Merak Uyandırıcı", "Enerjik & Eğlenceli", "Otoriter & Bilgi Verici", "Samimi & Vlog Tarzı", "Şok Edici / İfşa"])
     with col_s2:
-        s_hedef = st.text_input("Hedef Kitle (Kime hitap ediyorsun?)", placeholder="Örn: Yeni başlayanlar, İş insanları, Öğrenciler...")
+        s_hedef = st.text_input("Hedef Kitle (Kime hitap ediyorsunuz?)", placeholder="Örn: Yeni başlayanlar, İş insanları, Öğrenciler...")
 
     def ai_senaryo_yazici(konu, ton, hedef):
         prompt = f"""
@@ -224,7 +258,7 @@ with tab3:
         Ton: {ton}
         Hedef Kitle: {hedef}
         
-        Bana bu kitleyi ilk 3 saniyede yakalayacak 3 farklı 'Kanca (Hook)' üret ve seçtiğin en iyi kanca üzerinden saniye saniye bir video çekim senaryosu hazırla.
+        Bana bu kitleyi ilk 3 saniyede yakalayacak 3 farklı 'Kanca (Hook)' üret ve seçtiğin en iyi kanca üzerinden saniye saniye bir video çekim senaryosu hazırla. Metinlerde emoji kullanma.
         
         SADECE JSON FORMATINDA CEVAP VER:
         {{
@@ -239,7 +273,7 @@ with tab3:
                 {{"saniye": "10-25 sn", "gorsel": "Ekrana maddeler gelir.", "ses": "Çözüm anlatılır..."}},
                 {{"saniye": "25-30 sn", "gorsel": "Kamerayı işaret et.", "ses": "Daha fazlası için takip et!"}}
             ],
-            "yonetmen_tavsiyesi": "Videoyu çok hızlı cut'larla (kesmelerle) kurgula, sessiz boşluk bırakma."
+            "yonetmen_tavsiyesi": "Videoyu çok hızlı kesmelerle kurgula, sessiz boşluk bırakma."
         }}
         """
         try:
@@ -250,18 +284,17 @@ with tab3:
             st.error(f"Hata: {str(e)}")
             return None
 
-    if st.button("🎬 Kanca ve Senaryo Üret", type="primary", use_container_width=True):
+    if st.button("Kanca ve Senaryo Üret", type="primary", use_container_width=True):
         if not s_konu:
             st.warning("Lütfen videonun konusunu yazın!")
         else:
-            with st.spinner("Usta Yönetmen Senaryonu Yazıyor..."):
+            with st.spinner("Yönetmen Senaryonuzu Yazıyor..."):
                 senaryo_sonuc = ai_senaryo_yazici(s_konu, s_ton, s_hedef)
                 
             if senaryo_sonuc:
                 st.success("Senaryo Çekime Hazır!")
                 
-                # Kancalar Bölümü (3 Farklı Renkli Kutu)
-                st.subheader("🎣 İlk 3 Saniye Kancaları (Bunlardan birini seç)")
+                st.subheader("İlk 3 Saniye Kancaları (Bunlardan birini seçin)")
                 k1, k2, k3 = st.columns(3)
                 kancalar = senaryo_sonuc.get("kancalar", [])
                 if len(kancalar) == 3:
@@ -271,13 +304,12 @@ with tab3:
                 
                 st.divider()
                 
-                # Senaryo Tablosu
-                st.subheader("🎥 Saniye Saniye Çekim Planı")
+                st.subheader("Saniye Saniye Çekim Planı")
                 senaryo_adimlari = senaryo_sonuc.get("senaryo", [])
                 for adim in senaryo_adimlari:
-                    with st.expander(f"⏱️ {adim['saniye']}", expanded=True):
-                        st.markdown(f"👁️ **Ekranda Ne Görünecek:** {adim['gorsel']}")
-                        st.markdown(f"🎙️ **Dış Ses / Konuşma:** {adim['ses']}")
+                    with st.expander(f"{adim['saniye']}", expanded=True):
+                        st.markdown(f"**Ekranda Ne Görünecek:** {adim['gorsel']}")
+                        st.markdown(f"**Dış Ses / Konuşma:** {adim['ses']}")
                 
-                st.subheader("🎬 Yönetmenin Notu")
+                st.subheader("Yönetmenin Notu")
                 st.error(senaryo_sonuc.get("yonetmen_tavsiyesi", ""))
