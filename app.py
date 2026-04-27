@@ -155,9 +155,9 @@ with tab1:
                 c4.metric("Yeni Takipçi", f"{sonuclar.get('yeni_takipci', 0):,}")
                 st.divider()
                 st.subheader("Psikolojik ve Yapısal Analiz")
-                st.info(f"**Duygu Radarı:** {sonuclar.get('duygu_radari', '')}")
-                st.warning(f"**Risk Bölgesi (İzleyici Kaybı):** {sonuclar.get('risk_bolgesi', '')}")
-                st.error(f"**Kanca Eleştirisi:** {sonuclar.get('hook_elestirisi', '')}")
+                st.info(f"Duygu Radarı: {sonuclar.get('duygu_radari', '')}")
+                st.warning(f"Risk Bölgesi (İzleyici Kaybı): {sonuclar.get('risk_bolgesi', '')}")
+                st.error(f"Kanca Eleştirisi: {sonuclar.get('hook_elestirisi', '')}")
                 st.divider()
                 st.subheader("Önerilen Açıklama ve Etiketler")
                 st.code(sonuclar.get('viral_aciklama', ''), language=None)
@@ -165,9 +165,30 @@ with tab1:
                 st.subheader("Enerji ve Algoritma Yorumu")
                 st.write(sonuclar.get('kisi_ve_vibe_analizi', ''))
                 st.write(sonuclar.get('ai_yorumu', ''))
+                
+                # --- RAPOR İNDİRME BÖLÜMÜ ---
+                rapor_icerigi = f"""--- VİRAL İÇERİK ANALİZ RAPORU ---
+Platform: {platform}
+Sektör: {sektor}
+Tahmini Skor: {sonuclar.get('skor', 0)}/100
+
+-- PSİKOLOJİK ANALİZ --
+Duygu Radarı: {sonuclar.get('duygu_radari', '')}
+Risk Bölgesi: {sonuclar.get('risk_bolgesi', '')}
+Kanca Eleştirisi: {sonuclar.get('hook_elestirisi', '')}
+
+-- ALGORİTMA YORUMU --
+{sonuclar.get('kisi_ve_vibe_analizi', '')}
+{sonuclar.get('ai_yorumu', '')}
+
+-- METİNLER --
+Açıklama: {sonuclar.get('viral_aciklama', '')}
+Hashtagler: {sonuclar.get('hashtagler', '')}
+"""
+                st.download_button(label="📄 Bu Raporu İndir (.txt)", data=rapor_icerigi, file_name="Viral_Analiz_Raporu.txt", mime="text/plain")
 
 # ==============================================================================
-# SEKME 2: PROFİL VE MARKA CHECK-UP (VİTRİN VE DÖNÜŞÜM EKLENDİ)
+# SEKME 2: PROFİL VE MARKA CHECK-UP
 # ==============================================================================
 with tab2:
     st.subheader("Profil ve Marka Kimliği Check-up")
@@ -242,6 +263,25 @@ with tab2:
                 st.write(res.get('marka_stratejisi', ''))
                 st.subheader("Acil Eylem Planı")
                 st.error(res.get('acil_duzeltmeler', ''))
+                
+                # --- RAPOR İNDİRME BÖLÜMÜ ---
+                rapor_icerigi = f"""--- MARKA VE PROFIL CHECK-UP RAPORU ---
+Tema: {p_tema}
+Uyum Skoru: % {res.get('profil_skoru', 0)}
+
+-- KİMLİK VE DÖNÜŞÜM --
+Biyografi Analizi: {res.get('biyografi_analizi', '')}
+Satış/Link Stratejisi: {res.get('donusum_ve_link_stratejisi', '')}
+
+-- GÖRSEL VİTRİN --
+Profil Fotoğrafı: {res.get('foto_yorumu', '')}
+Grid/Akış Analizi: {res.get('grid_ve_vitrin_analizi', '')}
+
+-- STRATEJİ --
+Yol Haritası: {res.get('marka_stratejisi', '')}
+Acil Düzeltmeler: {res.get('acil_duzeltmeler', '')}
+"""
+                st.download_button(label="📄 Bu Raporu İndir (.txt)", data=rapor_icerigi, file_name="Marka_Checkup_Raporu.txt", mime="text/plain")
 
 # ==============================================================================
 # SEKME 3: KANCA (HOOK) VE SENARYO ÜRETİCİSİ
@@ -294,15 +334,39 @@ with tab3:
                 st.subheader("İlk 3 Saniye Kancaları")
                 k1, k2, k3 = st.columns(3)
                 kancalar = senaryo_sonuc.get("kancalar", [])
+                
+                kanca_metni = "" # Rapor için kancaları toplayacağız
                 if len(kancalar) == 3:
                     k1.info(f"**{kancalar[0]['tip']}**\n\n{kancalar[0]['cumle']}")
                     k2.success(f"**{kancalar[1]['tip']}**\n\n{kancalar[1]['cumle']}")
                     k3.warning(f"**{kancalar[2]['tip']}**\n\n{kancalar[2]['cumle']}")
+                    kanca_metni = f"1. {kancalar[0]['tip']}: {kancalar[0]['cumle']}\n2. {kancalar[1]['tip']}: {kancalar[1]['cumle']}\n3. {kancalar[2]['tip']}: {kancalar[2]['cumle']}"
+                
                 st.divider()
                 st.subheader("Saniye Saniye Çekim Planı")
+                
+                senaryo_metni = "" # Rapor için senaryoyu toplayacağız
                 for adim in senaryo_sonuc.get("senaryo", []):
                     with st.expander(f"{adim['saniye']}", expanded=True):
                         st.markdown(f"**Ekranda Ne Görünecek:** {adim['gorsel']}")
                         st.markdown(f"**Dış Ses / Konuşma:** {adim['ses']}")
+                    senaryo_metni += f"[{adim['saniye']}]\nGörsel: {adim['gorsel']}\nSes: {adim['ses']}\n\n"
+                        
                 st.subheader("Yönetmenin Notu")
                 st.error(senaryo_sonuc.get("yonetmen_tavsiyesi", ""))
+                
+                # --- RAPOR İNDİRME BÖLÜMÜ ---
+                rapor_icerigi = f"""--- VİDEO ÇEKİM SENARYOSU ---
+Konu: {s_konu}
+Ton: {s_ton}
+Hedef Kitle: {s_hedef}
+
+-- KANCALAR (HOOKS) --
+{kanca_metni}
+
+-- ÇEKİM PLANI --
+{senaryo_metni}
+-- YÖNETMENİN NOTU --
+{senaryo_sonuc.get("yonetmen_tavsiyesi", "")}
+"""
+                st.download_button(label="📄 Bu Senaryoyu İndir (.txt)", data=rapor_icerigi, file_name="Video_Senaryosu.txt", mime="text/plain")
