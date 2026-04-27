@@ -59,7 +59,7 @@ with tab_ana:
     st.text_area("Sayfanın genel hedeflerini veya rakip analizlerini not alın:", placeholder="Örn: Bu ayki hedef 10K takipçi. Rakip sayfa: @ornek_sayfa...")
 
 # ==============================================================================
-# SEKME 1: İÇERİK VE VİDEO ANALİZİ (GELİŞMİŞ LABORATUVAR)
+# SEKME 1: İÇERİK VE VİDEO ANALİZİ
 # ==============================================================================
 with tab1:
     st.info("Videonuzu tüm algoritmik ve psikolojik detaylarıyla analiz edin.")
@@ -68,10 +68,8 @@ with tab1:
         video_platformlar = ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube Video"]
         post_platformlar = ["Instagram Post", "Facebook Post", "X (Twitter) Post"]
         platform = st.selectbox("Hedef Platform", video_platformlar + post_platformlar, key="plat1")
-        
         sektorler = ["Eğitim / Bilgi", "Yazılım / Teknoloji", "Mizah / Eğlence", "Spor / Oyun", "Genel / Yaşam Tarzı", "Güzellik / Moda", "Finans / İş"]
         sektor = st.selectbox("Sektörünüz / Nişiniz", sektorler, key="sektor1")
-        
         takipci = st.number_input("Mevcut Takipçi Sayınız", 0, 10000000, 1000, key="takipci1")
         ses_turu = st.selectbox("Kullanılan Ses/Müzik", ["Trend/Popüler Ses", "Orijinal Ses", "Sadece Konuşma", "Müzik Yok"], key="ses1")
 
@@ -92,14 +90,11 @@ with tab1:
     def ai_kapsamli_analiz(platform, sektor, saat, konu, takipci, sure, ses_turu, cta, hook, video_file_path=None):
         sure_metni = f"{sure} saniye" if sure else "Görsel içeriği"
         prompt = f"""
-        Analiz et:
-        Platform: {platform}, Sektör: {sektor}, Takipçi: {takipci}, Saat: {saat}:00, Süre: {sure_metni}, Ses: {ses_turu}, CTA: {cta}, İlk Cümle (Hook): {hook}, Konu: {konu}.
-        Eğer video varsa izle. Videodaki kişinin enerjisini analiz et. Metinlerde asla emoji kullanma.
-        
-        Ayrıca şu detaylı laboratuvar analizlerini yap:
-        1. Duygu Radarı: Bu içeriğin izleyicide uyandıracağı baskın duyguları (Örn: Yüzde 70 Şaşkınlık, Yüzde 30 İlham) ve paylaşım oranına etkisini yaz.
-        2. Risk Bölgesi (Drop-off): Videonun/İçeriğin hangi aşamasında izleyicinin sıkılıp kaydırma riski var? Bunu önlemek için kurgu taktiği ver.
-        3. Hook Eleştirisi: Kullanıcının girdiği '{hook}' giriş cümlesini acımasızca eleştir ve {sektor} sektörüne uygun daha güçlü bir alternatif sun.
+        Analiz et: Platform: {platform}, Sektör: {sektor}, Takipçi: {takipci}, Saat: {saat}:00, Süre: {sure_metni}, Ses: {ses_turu}, CTA: {cta}, İlk Cümle: {hook}, Konu: {konu}.
+        Eğer video varsa izle. Videodaki kişinin enerjisini analiz et. Metinlerde emoji kullanma.
+        1. Duygu Radarı: İzleyicide uyandıracağı baskın duyguları ve paylaşıma etkisini yaz.
+        2. Risk Bölgesi (Drop-off): İzleyicinin sıkılma riskini tespit et ve kurgu taktiği ver.
+        3. Hook Eleştirisi: '{hook}' cümlesini eleştir ve daha güçlü alternatif sun.
 
         JSON formatında cevap ver:
         {{
@@ -108,12 +103,12 @@ with tab1:
             "yorum_sayisi": 120,
             "yeni_takipci": 45,
             "sure_tahmini": "24-48 Saat",
-            "duygu_radari": "Bu içerik Yüzde 60 Merak barındırıyor...",
-            "risk_bolgesi": "12. ve 15. saniyeler arasında bilgi yığılması var, izleyiciyi kaybedebilirsiniz...",
-            "hook_elestirisi": "Giriş cümleniz çok sıradan. Onun yerine şöyle başlayın...",
+            "duygu_radari": "...",
+            "risk_bolgesi": "...",
+            "hook_elestirisi": "...",
             "kisi_ve_vibe_analizi": "...",
             "ai_yorumu": "...",
-            "viral_aciklama": "VİRAL AÇIKLAMA BURAYA GELECEK...",
+            "viral_aciklama": "...",
             "hashtagler": "#trend #viral"
         }}
         """
@@ -153,56 +148,56 @@ with tab1:
                 
             if sonuclar:
                 st.success("Derinlemesine Analiz Tamamlandı!")
-                
-                # Temel Metrikler
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("Viral Skor", sonuclar.get('skor', 0))
                 c2.metric("Beğeni", f"{sonuclar.get('begeni', 0):,}")
                 c3.metric("Yorum", f"{sonuclar.get('yorum_sayisi', 0):,}")
                 c4.metric("Yeni Takipçi", f"{sonuclar.get('yeni_takipci', 0):,}")
-                
                 st.divider()
-                
-                # YENİ: Derin Laboratuvar Analizi Çıktıları
                 st.subheader("Psikolojik ve Yapısal Analiz")
                 st.info(f"**Duygu Radarı:** {sonuclar.get('duygu_radari', '')}")
                 st.warning(f"**Risk Bölgesi (İzleyici Kaybı):** {sonuclar.get('risk_bolgesi', '')}")
-                st.error(f"**Kanca (Hook) Eleştirisi:** {sonuclar.get('hook_elestirisi', '')}")
-                
+                st.error(f"**Kanca Eleştirisi:** {sonuclar.get('hook_elestirisi', '')}")
                 st.divider()
-                
                 st.subheader("Önerilen Açıklama ve Etiketler")
                 st.code(sonuclar.get('viral_aciklama', ''), language=None)
                 st.caption(f"Önerilen Hashtagler: {sonuclar.get('hashtagler', '')}")
-
                 st.subheader("Enerji ve Algoritma Yorumu")
                 st.write(sonuclar.get('kisi_ve_vibe_analizi', ''))
                 st.write(sonuclar.get('ai_yorumu', ''))
 
 # ==============================================================================
-# SEKME 2: PROFİL VE MARKA CHECK-UP
+# SEKME 2: PROFİL VE MARKA CHECK-UP (VİTRİN VE DÖNÜŞÜM EKLENDİ)
 # ==============================================================================
 with tab2:
     st.subheader("Profil ve Marka Kimliği Check-up")
     col_p1, col_p2 = st.columns([1, 1])
+    
     with col_p1:
         p_bio = st.text_area("Profil Biyografiniz", placeholder="Bio metnini buraya yapıştırın...")
-        p_tema = st.text_input("Ana Temanız", placeholder="Örn: Yaşam Tarzı, Teknoloji...")
+        p_tema = st.text_input("Ana Temanız", placeholder="Örn: Yaşam Tarzı, Teknoloji, Eğitim...")
+        p_link = st.text_input("Bio Linkinizin Amacı (Dönüşüm)", placeholder="Örn: Sitemden ürün satmak, YouTube'a çekmek...")
+        p_videolar = st.text_area("En Çok İzlenen 3 Videonun Konusu", placeholder="Sizi neyle tanıdılar?")
+    
     with col_p2:
-        st.write("**Profil Fotoğrafı Analizi**")
-        p_photo = st.file_uploader("Profil fotoğrafını yükleyin", type=["jpg", "png", "jpeg"])
-    p_videolar = st.text_area("En Çok İzlenen 3 Videonun Konusu", placeholder="Sizi neyle tanıdılar?")
+        st.write("**Görsel Analiz Yüklemeleri**")
+        p_photo = st.file_uploader("1. Profil fotoğrafını yükleyin", type=["jpg", "png", "jpeg"])
+        p_grid = st.file_uploader("2. Profil Akışı (Grid/Feed) Ekran Görüntüsü Yükleyin", type=["jpg", "png", "jpeg"])
 
-    def ai_profil_analizi(bio, tema, videolar, photo_file=None):
+    def ai_profil_analizi(bio, tema, videolar, link_amaci, photo_file=None, grid_file=None):
         prompt = f"""
-        Bu profili bir Marka Stratejisti olarak incele. Metinlerde emoji kullanma.
-        Bio: {bio}, Tema: {tema}, En Çok İzlenenler: {videolar}.
-        Eğer profil fotoğrafı varsa uyumunu analiz et.
+        Bu profili üst düzey bir Marka Stratejisti olarak incele. Metinlerde emoji kullanma.
+        Bio: {bio}, Tema: {tema}, En Çok İzlenenler: {videolar}, Link Dönüşüm Amacı: {link_amaci}.
+        Sana profil fotoğrafı ve/veya profilin genel grid(akış) görüntüsü de verilmiş olabilir. Görsellerin marka kimliğiyle uyumunu, renk bütünlüğünü ve kapak fotoğraflarındaki okunabilirliği eleştir.
+        Ayrıca bio metninin, kullanıcının '{link_amaci}' hedefine ulaşması için yeterli olup olmadığını analiz et.
+        
         JSON formatında cevap ver:
         {{
             "profil_skoru": 75,
             "biyografi_analizi": "...",
-            "foto_yorumu": "Profil fotoğrafınız profesyonel/samimi...",
+            "donusum_ve_link_stratejisi": "İnsanları o linke tıklamaya ikna edecek bir Eylem Çağrısı (CTA) eksik...",
+            "foto_yorumu": "...",
+            "grid_ve_vitrin_analizi": "Kapak fotoğraflarındaki yazılar çok küçük/Karmaşık bir renk paleti var...",
             "marka_stratejisi": "...",
             "acil_duzeltmeler": "1. Şunu yapın, 2. Bunu yapın"
         }}
@@ -210,8 +205,10 @@ with tab2:
         try:
             content = [prompt]
             if photo_file:
-                img = Image.open(photo_file)
-                content = [img, prompt]
+                content.append(Image.open(photo_file))
+            if grid_file:
+                content.append(Image.open(grid_file))
+                
             response = model.generate_content(content)
             match = re.search(r'\{.*\}', response.text, re.DOTALL)
             return json.loads(match.group(0)) if match else None
@@ -223,14 +220,24 @@ with tab2:
             st.warning("Lütfen bio ve tema alanlarını doldurun!")
         else:
             with st.spinner("Yapay Zeka Profilinizi İnceliyor..."):
-                res = ai_profil_analizi(p_bio, p_tema, p_videolar, p_photo)
+                res = ai_profil_analizi(p_bio, p_tema, p_videolar, p_link, p_photo, p_grid)
             if res:
                 st.success("Profil Analizi Tamamlandı!")
                 st.metric("Marka Uyum Skoru", f"% {res.get('profil_skoru', 0)}")
-                st.subheader("Profil Fotoğrafı ve Vibe")
-                st.info(res.get('foto_yorumu', 'Fotoğraf yüklenmedi.'))
-                st.subheader("Biyografi ve Kimlik")
-                st.write(res.get('biyografi_analizi', ''))
+                
+                c_sol, c_sag = st.columns(2)
+                with c_sol:
+                    st.subheader("Biyografi ve Kimlik")
+                    st.write(res.get('biyografi_analizi', ''))
+                    st.subheader("Dönüşüm ve Satış Hunisi")
+                    st.info(res.get('donusum_ve_link_stratejisi', ''))
+                with c_sag:
+                    st.subheader("Profil Fotoğrafı")
+                    st.write(res.get('foto_yorumu', 'Fotoğraf yüklenmedi.'))
+                    st.subheader("Vitrin ve Akış (Grid) Analizi")
+                    st.info(res.get('grid_ve_vitrin_analizi', 'Grid görüntüsü yüklenmedi.'))
+                
+                st.divider()
                 st.subheader("Yol Haritası")
                 st.write(res.get('marka_stratejisi', ''))
                 st.subheader("Acil Eylem Planı")
