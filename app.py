@@ -31,11 +31,13 @@ else:
 
 st.title("Yapay Zeka Sosyal Medya Ajansı")
 
-tab_ana, tab1, tab2, tab3 = st.tabs([
+# --- 5 SEKME OLDU (Ana Sayfa + 4 Araç) ---
+tab_ana, tab1, tab2, tab3, tab4 = st.tabs([
     "Ana Sayfa", 
     "İçerik Analizi", 
     "Profil Check-up", 
-    "Senaryo Üretici"
+    "Senaryo Üretici",
+    "Kriz Yönetimi"
 ])
 
 # ==============================================================================
@@ -44,16 +46,21 @@ tab_ana, tab1, tab2, tab3 = st.tabs([
 with tab_ana:
     st.subheader("Hoş Geldiniz! Sosyal Medyayı Birlikte Yönetelim.")
     st.markdown("""
-    Bu platform, içerik üreticileri ve markalar için özel olarak tasarlanmış **Yapay Zeka Destekli bir Sosyal Medya Asistanıdır.** Arka planda çalışan güçlü algoritma sayesinde videolarınızı yayınlamadan önce test edebilir, marka kimliğinizi oturtabilir ve içerik fikirlerinizi senaryolaştırabilirsiniz.
+    Bu platform, içerik üreticileri ve markalar için özel olarak tasarlanmış **Yapay Zeka Destekli bir Sosyal Medya Asistanıdır.** Arka planda çalışan güçlü algoritma sayesinde videolarınızı yayınlamadan önce test edebilir, marka kimliğinizi oturtabilir, kriz anlarını yönetebilir ve senaryolar üretebilirsiniz.
     """)
     st.divider()
-    c1, c2, c3 = st.columns(3)
+    
+    # 4 Özelliği şık kolonlarla tanıtıyoruz
+    c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.info("### İçerik Analizi\n\nVideonuzu veya içerik fikrinizi analiz edin. Tahmini viral skorunu, duygu radarını ve izleyiciyi kaybetme risk bölgelerini öğrenin.")
+        st.info("**İçerik Analizi**\nVideonuzun viral skorunu ve risk bölgelerini öğrenin.")
     with c2:
-        st.success("### Profil Check-up\n\nHedef kitleniz sizi doğru anlıyor mu? Biyografinizi ve profil fotoğrafınızı taratarak marka kimliğinizi optimize edin.")
+        st.success("**Profil Check-up**\nBio ve Grid (Akış) analiziyle marka kimliğinizi optimize edin.")
     with c3:
-        st.warning("### Senaryo Üretici\n\nBoş sayfa sendromuna son! Konunuzu yazın, sistem size kancaları ve çekim senaryosunu saniye saniye hazırlasın.")
+        st.warning("**Senaryo Üretici**\nBoş sayfa sendromuna son! Saniye saniye çekim planı hazırlayın.")
+    with c4:
+        st.error("**Kriz Yönetimi**\nZorlu yorumlara ve linç girişimlerine karşı zekice cevaplar üretin.")
+        
     st.divider()
     st.subheader("Proje Notları ve Hedefler")
     st.text_area("Sayfanın genel hedeflerini veya rakip analizlerini not alın:", placeholder="Örn: Bu ayki hedef 10K takipçi. Rakip sayfa: @ornek_sayfa...")
@@ -166,7 +173,6 @@ with tab1:
                 st.write(sonuclar.get('kisi_ve_vibe_analizi', ''))
                 st.write(sonuclar.get('ai_yorumu', ''))
                 
-                # --- RAPOR İNDİRME BÖLÜMÜ ---
                 rapor_icerigi = f"""--- VİRAL İÇERİK ANALİZ RAPORU ---
 Platform: {platform}
 Sektör: {sektor}
@@ -264,7 +270,6 @@ with tab2:
                 st.subheader("Acil Eylem Planı")
                 st.error(res.get('acil_duzeltmeler', ''))
                 
-                # --- RAPOR İNDİRME BÖLÜMÜ ---
                 rapor_icerigi = f"""--- MARKA VE PROFIL CHECK-UP RAPORU ---
 Tema: {p_tema}
 Uyum Skoru: % {res.get('profil_skoru', 0)}
@@ -335,7 +340,7 @@ with tab3:
                 k1, k2, k3 = st.columns(3)
                 kancalar = senaryo_sonuc.get("kancalar", [])
                 
-                kanca_metni = "" # Rapor için kancaları toplayacağız
+                kanca_metni = "" 
                 if len(kancalar) == 3:
                     k1.info(f"**{kancalar[0]['tip']}**\n\n{kancalar[0]['cumle']}")
                     k2.success(f"**{kancalar[1]['tip']}**\n\n{kancalar[1]['cumle']}")
@@ -345,7 +350,7 @@ with tab3:
                 st.divider()
                 st.subheader("Saniye Saniye Çekim Planı")
                 
-                senaryo_metni = "" # Rapor için senaryoyu toplayacağız
+                senaryo_metni = "" 
                 for adim in senaryo_sonuc.get("senaryo", []):
                     with st.expander(f"{adim['saniye']}", expanded=True):
                         st.markdown(f"**Ekranda Ne Görünecek:** {adim['gorsel']}")
@@ -355,7 +360,6 @@ with tab3:
                 st.subheader("Yönetmenin Notu")
                 st.error(senaryo_sonuc.get("yonetmen_tavsiyesi", ""))
                 
-                # --- RAPOR İNDİRME BÖLÜMÜ ---
                 rapor_icerigi = f"""--- VİDEO ÇEKİM SENARYOSU ---
 Konu: {s_konu}
 Ton: {s_ton}
@@ -370,3 +374,77 @@ Hedef Kitle: {s_hedef}
 {senaryo_sonuc.get("yonetmen_tavsiyesi", "")}
 """
                 st.download_button(label="📄 Bu Senaryoyu İndir (.txt)", data=rapor_icerigi, file_name="Video_Senaryosu.txt", mime="text/plain")
+
+# ==============================================================================
+# SEKME 4: KRİZ VE TOPLULUK YÖNETİCİSİ (YENİ EKLENDİ)
+# ==============================================================================
+with tab4:
+    st.subheader("Kriz ve Topluluk Yöneticisi")
+    st.markdown("Videonuzun altına gelen sert, linç edici veya zorlayıcı yorumları buraya yapıştırın. Yapay zeka markanızın tonuna uygun stratejik cevaplar üretsin.")
+    
+    k_yorum = st.text_area("Gelen Zorlu/Linç Edici Yorum", placeholder="Örn: Bu ürününüz tamamen para tuzağı, asla çalışmıyor!")
+    k_ton = st.selectbox("Cevap Verirken Markanızın Tonu Nasıl Olmalı?", ["Profesyonel ve Kurumsal (Güven Verici)", "Mizahi ve Esprili (Buz Kırıcı)", "Açıklayıcı ve Samimi (Eğitici)", "Etkileşim Odaklı (Soru ile Karşılık Veren)"])
+
+    def ai_kriz_yonetimi(yorum, ton):
+        prompt = f"""
+        Sen üst düzey bir Kriz İletişimi ve Topluluk Yöneticisisin. Metinlerde emoji kullanma.
+        Gelen Yorum: "{yorum}"
+        İstenen Marka Tonu: "{ton}"
+        
+        Bu yorumun markaya verebileceği zararı analiz et ve belirtilen tona ağırlık vererek 3 farklı cevap stratejisi oluştur. Amacımız linci durdurmak, durumu lehimize çevirmek veya etkileşimi artırmak.
+        
+        JSON formatında cevap ver:
+        {{
+            "risk_seviyesi": "Yüksek (Linç Potansiyeli) / Orta / Düşük",
+            "yorum_analizi": "Kullanıcı hayal kırıklığı yaşıyor ve güvensizlik duyuyor...",
+            "cevap_1": {{"strateji": "Mizahi/Buz Kırıcı", "metin": "..."}},
+            "cevap_2": {{"strateji": "Kurumsal/Güven Verici", "metin": "..."}},
+            "cevap_3": {{"strateji": "Soru Sorarak Etkileşim Artırma", "metin": "..."}}
+        }}
+        """
+        try:
+            response = model.generate_content([prompt])
+            match = re.search(r'\{.*\}', response.text, re.DOTALL)
+            return json.loads(match.group(0)) if match else None
+        except Exception as e:
+            return None
+
+    if st.button("Kriz Yanıtı Üret", type="primary", use_container_width=True):
+        if not k_yorum:
+            st.warning("Lütfen analiz edilecek yorumu yapıştırın!")
+        else:
+            with st.spinner("Kriz Masası Toplanıyor..."):
+                kriz_sonuc = ai_kriz_yonetimi(k_yorum, k_ton)
+            if kriz_sonuc:
+                st.success("Kriz Stratejisi Hazır!")
+                
+                # Risk ve Analiz
+                st.error(f"**Risk Seviyesi:** {kriz_sonuc.get('risk_seviyesi', '')}")
+                st.write(f"**Yorumun Psikolojik Analizi:** {kriz_sonuc.get('yorum_analizi', '')}")
+                st.divider()
+                
+                # Cevap Seçenekleri
+                st.subheader("Stratejik Cevap Seçenekleri")
+                c1, c2, c3 = kriz_sonuc.get('cevap_1', {}), kriz_sonuc.get('cevap_2', {}), kriz_sonuc.get('cevap_3', {})
+                
+                st.info(f"**Strateji 1 ({c1.get('strateji', '')}):**\n\n{c1.get('metin', '')}")
+                st.success(f"**Strateji 2 ({c2.get('strateji', '')}):**\n\n{c2.get('metin', '')}")
+                st.warning(f"**Strateji 3 ({c3.get('strateji', '')}):**\n\n{c3.get('metin', '')}")
+                
+                # --- RAPOR İNDİRME BÖLÜMÜ ---
+                rapor_icerigi = f"""--- KRİZ YÖNETİMİ VE TOPLULUK RAPORU ---
+Gelen Yorum: {k_yorum}
+Seçilen Ton: {k_ton}
+
+-- DURUM ANALİZİ --
+Risk Seviyesi: {kriz_sonuc.get('risk_seviyesi', '')}
+Psikolojik Analiz: {kriz_sonuc.get('yorum_analizi', '')}
+
+-- YANIT SEÇENEKLERİ --
+1. {c1.get('strateji', '')}: {c1.get('metin', '')}
+
+2. {c2.get('strateji', '')}: {c2.get('metin', '')}
+
+3. {c3.get('strateji', '')}: {c3.get('metin', '')}
+"""
+                st.download_button(label="📄 Bu Kriz Raporunu İndir (.txt)", data=rapor_icerigi, file_name="Kriz_Yonetim_Raporu.txt", mime="text/plain")
