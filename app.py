@@ -11,17 +11,17 @@ import numpy as np
 # ==============================================================================
 # 1. SAYFA AYARLARI VE KÜTÜPHANE KONTROLÜ
 # ==============================================================================
-st.set_page_config(page_title="AI Sosyal Medya Ajansı", layout="wide")
+st.set_page_config(page_title="AI & Data Science Ajansı", layout="wide")
 
 try:
     import google.generativeai as genai
     from PIL import Image
 except ModuleNotFoundError:
-    st.error("HATA: Gerekli kütüphaneler bulunamadı! Lütfen terminale 'pip install google-generativeai pillow' yazın.")
+    st.error("HATA: Kütüphaneler eksik! Lütfen terminale: pip install google-generativeai pandas numpy pillow yazın.")
     st.stop()
 
 # ==============================================================================
-# 2. API ANAHTARI KONTROLÜ VE YAPILANDIRMA
+# 2. API ANAHTARI YAPILANDIRMASI
 # ==============================================================================
 try:
     API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -29,356 +29,269 @@ except (KeyError, FileNotFoundError):
     API_KEY = os.environ.get("GEMINI_API_KEY")
 
 if not API_KEY:
-    st.error("HATA: API Anahtarı bulunamadı! Lütfen .streamlit/secrets.toml dosyanızı kontrol edin.")
+    st.error("HATA: API Anahtarı bulunamadı!")
     st.stop()
 else:
     genai.configure(api_key=API_KEY)
     model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"temperature": 0.5})
 
-st.title("Yapay Zeka ve İleri Veri Bilimi Ajansı")
+st.title("Yapay Zeka ve Veri Bilimi Ajansı (Ultimate)")
 
 # ==============================================================================
-# 3. SEKMELERİN OLUŞTURULMASI
+# 3. MEGA SEKMELER
 # ==============================================================================
-tab_ana, tab1, tab2, tab_matematik = st.tabs([
+tab_ana, tab_analiz, tab_profil, tab_senaryo, tab_kriz, tab_cogalt, tab_matematik = st.tabs([
     "Ana Sayfa", 
-    "AI İçerik Analizi", 
+    "İçerik Analizi", 
+    "Profil Check-up", 
     "Senaryo Üretici",
-    "İleri Veri Bilimi Laboratuvarı"
+    "Kriz Yönetimi",
+    "İçerik Çoğaltıcı",
+    "Veri Bilimi Laboratuvarı"
 ])
 
 # ==============================================================================
 # SEKME 0: ANA SAYFA
 # ==============================================================================
 with tab_ana:
-    st.subheader("Hoş Geldiniz! Veriyle Büyümeye Hazır Mısınız?")
+    st.subheader("İki Dünyanın Birleşimi: Yaratıcılık ve Matematik")
     st.markdown("""
-    Bu platform, yapay zekanın yaratıcılığı ile **ileri seviye matematiğin ve istatistiğin** kesinliğini birleştiren profesyonel bir veri bilimi aracıdır. Hissiyatla değil, verilerle sosyal medyayı yönetin.
+    Bu platform, içerik üretiminin **kreatif süreçlerini (Yapay Zeka)** ve büyümenin **matematiksel gerçeklerini (Veri Bilimi)** tek bir ekranda birleştirir.
+    Sol taraftaki sekmelerle markanızı ve içeriklerinizi tasarlarken, en sağdaki laboratuvar ile istatistiksel olasılıklarınızı hesaplayın.
     """)
     st.divider()
     
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.info("**AI İçerik Analizi**\nVideonuzun viral skorunu ve risk bölgelerini öğrenin.")
+        st.info("**AI İçerik & Profil**\nVideolarınızı analiz edin, vitrininizi puanlayın.")
     with c2:
-        st.success("**Senaryo Üretici**\nBoş sayfa sendromuna son! Saniye saniye kurgu hazırlayın.")
+        st.success("**Üretim & Yönetim**\nSenaryo yazın, çoklu içerik çoğaltın, krizleri yönetin.")
     with c3:
-        st.warning("**Veri Bilimi Laboratuvarı**\nA/B Hipotez Testleri, Üstel Sönüm, Monte Carlo ve Bollinger analizleri yapın.")
+        st.warning("**Veri Bilimi Laboratuvarı**\nMarkov Zincirleri, Monte Carlo ve Bollinger bantları ile geleceği hesaplayın.")
 
 # ==============================================================================
 # SEKME 1: AI İÇERİK ANALİZİ
 # ==============================================================================
-with tab1:
+with tab_analiz:
     st.info("Videonuzu yapay zekanın algoritmik süzgecinden geçirin.")
     col1, col2 = st.columns(2)
     with col1:
-        sektor = st.selectbox("Sektörünüz / Nişiniz", ["Eğitim", "Teknoloji", "Mizah", "Oyun", "Genel", "Finans"], key="sektor1")
-        takipci = st.number_input("Mevcut Takipçi Sayınız", 0, 10000000, 1000, key="takipci1")
-
+        sektor = st.selectbox("Sektörünüz / Nişiniz", ["Eğitim", "Teknoloji", "Mizah", "Oyun", "Genel", "Finans"])
+        takipci = st.number_input("Mevcut Takipçi Sayınız", 0, 10000000, 1000)
     with col2:
-        sure = st.number_input("Video Süresi (sn)", 1, 1000, 60, key="sure1")
-        hook = st.text_input("Videoya Giriş Cümleniz (Hook)", placeholder="Örn: Eğer her gün yorgun uyanıyorsanız...", key="hook1")
+        sure = st.number_input("Video Süresi (sn)", 1, 1000, 60)
+        hook = st.text_input("Giriş Cümleniz (Hook)", placeholder="Örn: Eğer her gün yorgun uyanıyorsanız...")
 
-    konu = st.text_area("İçerik Konusu / Fikri", placeholder="Videonun ne hakkında olduğunu kısaca yazın...", key="konu1")
-    uploaded_video = st.file_uploader("Analiz için videonuzu yükleyin (Opsiyonel)", type=["mp4", "mov"], key="vid1")
+    konu = st.text_area("İçerik Konusu / Fikri", placeholder="Videonun ne hakkında olduğunu kısaca yazın...")
+    uploaded_video = st.file_uploader("Video Yükle (Opsiyonel)", type=["mp4", "mov"])
 
-    def ai_kapsamli_analiz(sektor, konu, takipci, sure, hook, video_file_path=None):
-        prompt = f"""
-        Analiz et: Sektör: {sektor}, Takipçi: {takipci}, Süre: {sure} sn, İlk Cümle: {hook}, Konu: {konu}.
-        Metinlerde emoji kullanma.
-        1. Duygu Radarı: İzleyicide uyandıracağı baskın duyguları yaz.
-        2. Risk Bölgesi (Drop-off): İzleyicinin sıkılma riskini tespit et.
-        3. Hook Eleştirisi: '{hook}' cümlesini eleştir.
-        JSON formatında cevap ver:
-        {{"skor": 85, "duygu_radari": "...", "risk_bolgesi": "...", "hook_elestirisi": "..."}}
-        """
-        gemini_file = None
-        try:
-            request_contents = [prompt]
-            if video_file_path:
-                gemini_file = genai.upload_file(path=video_file_path)
-                while gemini_file.state.name == "PROCESSING":
-                    time.sleep(2)
-                    gemini_file = genai.get_file(gemini_file.name)
-                request_contents = [gemini_file, prompt]
-            response = model.generate_content(request_contents)
-            match = re.search(r'\{.*\}', response.text, re.DOTALL)
-            return json.loads(match.group(0)) if match else None
-        except Exception:
-            return None
-        finally:
-            if gemini_file:
-                genai.delete_file(gemini_file.name)
-
-    if st.button("Yapay Zeka Analizini Başlat", type="primary", use_container_width=True):
-        if not konu and not uploaded_video:
-            st.warning("Lütfen bir konu yazın veya video yükleyin!")
-        else:
-            with st.spinner("Yapay Zeka Verileri İşliyor..."):
-                temp_path = None
-                if uploaded_video:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
-                        tmp.write(uploaded_video.read())
-                        temp_path = tmp.name
-                sonuclar = ai_kapsamli_analiz(sektor, konu, takipci, sure, hook, temp_path)
-                if temp_path and os.path.exists(temp_path):
-                    os.remove(temp_path)
+    if st.button("Laboratuvar Analizini Başlat", type="primary"):
+        prompt = f"Analiz et: Sektör: {sektor}, Takipçi: {takipci}, Süre: {sure}s, İlk Cümle: {hook}, Konu: {konu}. Metinlerde emoji kullanma. JSON formatında 'skor', 'duygu_radari', 'risk_bolgesi', 'hook_elestirisi', 'viral_aciklama' döndür."
+        with st.spinner("Yapay Zeka Analiz Ediyor..."):
+            contents = [prompt]
+            temp_path = None
+            if uploaded_video:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
+                    tmp.write(uploaded_video.read())
+                    temp_path = tmp.name
+                f = genai.upload_file(path=temp_path)
+                while f.state.name == "PROCESSING": time.sleep(1); f = genai.get_file(f.name)
+                contents = [f, prompt]
+            
+            try:
+                res = model.generate_content(contents)
+                sonuc = json.loads(re.search(r'\{.*\}', res.text, re.DOTALL).group(0))
                 
-            if sonuclar:
-                st.metric("Tahmini Viral Skor", f"{sonuclar.get('skor', 0)} / 100")
-                st.info(f"**Duygu Radarı:** {sonuclar.get('duygu_radari', '')}")
-                st.warning(f"**Risk Bölgesi:** {sonuclar.get('risk_bolgesi', '')}")
-                st.error(f"**Kanca Eleştirisi:** {sonuclar.get('hook_elestirisi', '')}")
+                st.metric("Tahmini Viral Skor", f"{sonuc.get('skor', 0)} / 100")
+                st.info(f"**Duygu Radarı:** {sonuc.get('duygu_radari')}")
+                st.warning(f"**Risk Bölgesi:** {sonuc.get('risk_bolgesi')}")
+                st.error(f"**Kanca Eleştirisi:** {sonuc.get('hook_elestirisi')}")
+                
+                rapor = f"--- ANALIZ ---\nSkor: {sonuc.get('skor')}\nDuygu: {sonuc.get('duygu_radari')}\nRisk: {sonuc.get('risk_bolgesi')}"
+                st.download_button("📄 Analiz Raporunu İndir", rapor, "Analiz_Raporu.txt")
+            except Exception as e:
+                st.error("Bir hata oluştu, lütfen tekrar deneyin.")
+            finally:
+                if temp_path and os.path.exists(temp_path): os.remove(temp_path)
 
 # ==============================================================================
-# SEKME 2: SENARYO ÜRETİCİ
+# SEKME 2: PROFİL VE MARKA CHECK-UP
 # ==============================================================================
-with tab2:
+with tab_profil:
+    st.subheader("Profil ve Marka Kimliği Check-up")
+    c_p1, c_p2 = st.columns(2)
+    with c_p1:
+        p_bio = st.text_area("Biyografiniz", placeholder="Bio metnini buraya yapıştırın...")
+        p_link = st.text_input("Linkinizin Amacı", placeholder="Örn: Ürün satmak")
+    with c_p2:
+        p_photo = st.file_uploader("1. Profil Fotoğrafı Yükle", type=["jpg", "png"])
+        p_grid = st.file_uploader("2. Profil Akışı (Grid) Yükle", type=["jpg", "png"])
+
+    if st.button("Marka Analizini Başlat", type="primary"):
+        prompt = f"Profili incele. Bio: {p_bio}, Link Amacı: {p_link}. Metinlerde emoji kullanma. JSON formatında 'profil_skoru', 'biyografi_analizi', 'grid_analizi', 'acil_duzeltmeler' döndür."
+        with st.spinner("Profil İnceleniyor..."):
+            contents = [prompt]
+            if p_photo: contents.append(Image.open(p_photo))
+            if p_grid: contents.append(Image.open(p_grid))
+            try:
+                res = model.generate_content(contents)
+                p_sonuc = json.loads(re.search(r'\{.*\}', res.text, re.DOTALL).group(0))
+                st.metric("Marka Uyum Skoru", f"% {p_sonuc.get('profil_skoru', 0)}")
+                st.write(f"**Bio Analizi:** {p_sonuc.get('biyografi_analizi')}")
+                st.write(f"**Vitrin/Grid:** {p_sonuc.get('grid_analizi')}")
+                st.error(f"**Acil Düzeltmeler:** {p_sonuc.get('acil_duzeltmeler')}")
+                
+                rapor = f"--- PROFIL RAPORU ---\nSkor: {p_sonuc.get('profil_skoru')}\nBio: {p_sonuc.get('biyografi_analizi')}\nAcil: {p_sonuc.get('acil_duzeltmeler')}"
+                st.download_button("📄 Profil Raporunu İndir", rapor, "Profil_Raporu.txt")
+            except: st.error("Analiz tamamlanamadı.")
+
+# ==============================================================================
+# SEKME 3: SENARYO ÜRETİCİ
+# ==============================================================================
+with tab_senaryo:
     st.subheader("Senaryo ve Kurgu Üretici")
-    s_konu = st.text_input("Videonun Ana Konusu", placeholder="Örn: Python ile veri analizi nasıl yapılır?")
-    
-    def ai_senaryo_yazici(konu):
-        prompt = f"""
-        Konu: {konu}. Metinlerde emoji kullanma.
-        Saniye saniye akıcı bir video çekim senaryosu hazırla.
-        JSON formatında cevap ver:
-        {{"senaryo": [{{"saniye": "0-3 sn", "gorsel": "...", "ses": "..."}}, {{"saniye": "3-10 sn", "gorsel": "...", "ses": "..."}}]}}
-        """
-        try:
-            response = model.generate_content([prompt])
-            match = re.search(r'\{.*\}', response.text, re.DOTALL)
-            return json.loads(match.group(0)) if match else None
-        except Exception:
-            return None
-
-    if st.button("Senaryo Üret", type="primary", use_container_width=True):
-        if s_konu:
-            with st.spinner("Yönetmen Senaryoyu Yazıyor..."):
-                senaryo_sonuc = ai_senaryo_yazici(s_konu)
-            if senaryo_sonuc:
-                for adim in senaryo_sonuc.get("senaryo", []):
-                    with st.expander(f"{adim['saniye']}", expanded=True):
-                        st.markdown(f"**Görsel:** {adim['gorsel']}")
-                        st.markdown(f"**Ses:** {adim['ses']}")
-        else:
-            st.warning("Lütfen konu girin.")
+    s_konu = st.text_input("Videonun Ana Konusu", placeholder="Örn: Evde spor yapmanın faydaları")
+    if st.button("Senaryo Üret", type="primary"):
+        with st.spinner("Yönetmen Senaryoyu Yazıyor..."):
+            prompt = f"Konu: {s_konu}. Metinlerde emoji kullanma. Saniye saniye video çekim senaryosu hazırla. JSON formatında 'senaryo': [{{'saniye', 'gorsel', 'ses'}}]"
+            try:
+                res = model.generate_content([prompt])
+                s_sonuc = json.loads(re.search(r'\{.*\}', res.text, re.DOTALL).group(0))
+                rapor_metni = f"Konu: {s_konu}\n\n"
+                for adim in s_sonuc.get("senaryo", []):
+                    with st.expander(adim['saniye']):
+                        st.markdown(f"**Görsel:** {adim['gorsel']}\n\n**Ses:** {adim['ses']}")
+                    rapor_metni += f"[{adim['saniye']}]\nGörsel: {adim['gorsel']}\nSes: {adim['ses']}\n\n"
+                st.download_button("📄 Senaryoyu İndir", rapor_metni, "Senaryo.txt")
+            except: st.error("Senaryo oluşturulamadı.")
 
 # ==============================================================================
-# SEKME 3: İLERİ VERİ BİLİMİ VE İSTATİSTİK LABORATUVARI
+# SEKME 4: KRİZ YÖNETİMİ
+# ==============================================================================
+with tab_kriz:
+    st.subheader("Kriz ve Topluluk Yöneticisi")
+    k_yorum = st.text_area("Gelen Zorlu/Linç Edici Yorum", placeholder="Bu ürününüz tamamen para tuzağı!")
+    k_ton = st.selectbox("Cevap Tonu", ["Profesyonel", "Mizahi", "Samimi"])
+    if st.button("Kriz Yanıtı Üret", type="primary"):
+        with st.spinner("Kriz Masası Toplanıyor..."):
+            prompt = f"Yorum: '{k_yorum}', Ton: '{k_ton}'. Metinlerde emoji kullanma. JSON: 'risk_seviyesi', 'cevap_1', 'cevap_2' döndür."
+            try:
+                res = model.generate_content([prompt])
+                k_sonuc = json.loads(re.search(r'\{.*\}', res.text, re.DOTALL).group(0))
+                st.error(f"**Risk Seviyesi:** {k_sonuc.get('risk_seviyesi')}")
+                st.success(f"**Seçenek 1:** {k_sonuc.get('cevap_1')}")
+                st.info(f"**Seçenek 2:** {k_sonuc.get('cevap_2')}")
+            except: st.error("Yanıt üretilemedi.")
+
+# ==============================================================================
+# SEKME 5: İÇERİK ÇOĞALTICI
+# ==============================================================================
+with tab_cogalt:
+    st.subheader("İçerik Çoğaltıcı (Zaman Makinesi)")
+    c_fikir = st.text_area("Ana Fikriniz", placeholder="Uzun bir düşüncenizi buraya yazın...")
+    if st.button("Fikri 3 Platform İçin Çoğalt", type="primary"):
+        with st.spinner("İçerik Uyarlanıyor..."):
+            prompt = f"Ana Fikir: '{c_fikir}'. Metinlerde emoji kullanma. JSON formatında 'twitter', 'instagram_carousel', 'tiktok' metinleri üret."
+            try:
+                res = model.generate_content([prompt])
+                c_sonuc = json.loads(re.search(r'\{.*\}', res.text, re.DOTALL).group(0))
+                c1, c2, c3 = st.columns(3)
+                c1.info(f"**Twitter:**\n{c_sonuc.get('twitter')}")
+                c2.success(f"**Instagram:**\n{c_sonuc.get('instagram_carousel')}")
+                c3.warning(f"**TikTok:**\n{c_sonuc.get('tiktok')}")
+            except: st.error("Çoğaltma başarısız.")
+
+# ==============================================================================
+# SEKME 6: İLERİ VERİ BİLİMİ LABORATUVARI (ŞOV KISMI - 7 MODÜL)
 # ==============================================================================
 with tab_matematik:
     st.subheader("Veri Bilimi ve İstatistik Laboratuvarı")
-    st.markdown("Sosyal medya şans değil, ileri matematiktir. Lütfen kullanmak istediğiniz modeli seçin:")
-    
-    secilen_modul = st.selectbox("Analiz Modeli", [
-        "1. Etkileşim (ER) ve Varyans İstikrar Analizi", 
+    secilen_modul = st.selectbox("Kullanılacak Matematiksel Modeli Seçin", [
+        "1. Etkileşim (ER) ve Varyans Analizi", 
         "2. İstatistiksel A/B Hipotez Testi (Z-Test)", 
         "3. İçerik Yarı Ömrü (Üstel Sönüm / Exponential Decay)",
-        "4. Monte Carlo Simülasyonu (Olasılık ve Risk Analizi)",
-        "5. İzlenme Dalgalanması ve Kırılma Noktası (Bollinger Bantları)"
+        "4. Monte Carlo Simülasyonu (Risk Analizi)",
+        "5. Bollinger Bantları (Viral Kırılma Noktası)",
+        "6. Markov Zincirleri (Durum Tahmini)",
+        "7. Pearson Korelasyonu (Değişken Analizi)"
     ])
-    
     st.divider()
-    
-    # ---------------------------------------------------------
-    # MODÜL 1: Temel Etkileşim ve Varyans
-    # ---------------------------------------------------------
+
+    # MODÜL 1: VARYANS
     if "1." in secilen_modul:
-        st.markdown("### 1. Varyans (σ²) ve Etkileşim Oranı (ER)")
-        st.caption("Algoritma dalgalanmayı sevmez. İzlenmelerinizdeki standart sapmayı hesaplayın.")
-        
-        col_v1, col_v2, col_v3, col_v4, col_v5 = st.columns(5)
-        v1 = col_v1.number_input("1. Video", min_value=0, value=1200)
-        v2 = col_v2.number_input("2. Video", min_value=0, value=1350)
-        v3 = col_v3.number_input("3. Video", min_value=0, value=900)
-        v4 = col_v4.number_input("4. Video", min_value=0, value=1500)
-        v5 = col_v5.number_input("5. Video", min_value=0, value=1100)
-        
-        if st.button("Standart Sapmayı Hesapla", type="primary"):
-            veriler = [v1, v2, v3, v4, v5]
-            ortalama = sum(veriler) / len(veriler)
-            varyans = sum((x - ortalama) ** 2 for x in veriler) / len(veriler)
-            standart_sapma = math.sqrt(varyans)
-            sapma_yuzdesi = (standart_sapma / ortalama) * 100 if ortalama > 0 else 0
-            
-            df = pd.DataFrame({"Videolar": ["V1", "V2", "V3", "V4", "V5"], "İzlenmeler": veriler})
+        st.caption("İzlenmelerinizdeki standart sapmayı ve istikrarı hesaplayın.")
+        v = [st.number_input(f"Video {i}", value=1000+i*100) for i in range(1, 6)]
+        if st.button("Sapmayı Hesapla"):
+            avg = np.mean(v); std = np.std(v)
+            df = pd.DataFrame({"Videolar": ["V1","V2","V3","V4","V5"], "İzlenmeler": v})
             st.dataframe(df.T)
-            
-            c1, c2 = st.columns(2)
-            c1.metric("Aritmetik Ortalama (μ)", f"{ortalama:,.0f}")
-            c2.metric("Standart Sapma (σ)", f"{standart_sapma:,.0f}")
-            
-            if sapma_yuzdesi < 30:
-                st.success("Sonuç: İSTİKRARLI. İzlenmeleriniz ortalamaya çok yakın seyrediyor.")
-            else:
-                st.error("Sonuç: İSTİKRARSIZ (Yüksek Varyans). Videolarınız şansa bağlı tutuyor.")
+            st.metric("Ortalama (μ)", f"{int(avg):,}"); st.metric("Standart Sapma (σ)", f"{int(std):,}")
 
-    # ---------------------------------------------------------
-    # MODÜL 2: İstatistiksel A/B Hipotez Testi
-    # ---------------------------------------------------------
+    # MODÜL 2: Z-TEST
     elif "2." in secilen_modul:
-        st.markdown("### 2. İstatistiksel A/B Hipotez Testi (Z-Skoru)")
-        st.caption("İki farklı içeriğin etkileşim oranlarını kıyaslayın. Aradaki fark tesadüf mü, yoksa istatistiksel olarak anlamlı mı?")
-        
         col_ab1, col_ab2 = st.columns(2)
-        with col_ab1:
-            st.info("**A Videosu (Kontrol Grubu)**")
-            n1 = st.number_input("A Videosu Toplam Gösterim", min_value=1, value=50000)
-            x1 = st.number_input("A Videosu Toplam Tıklama/Beğeni", min_value=0, value=1200)
-        with col_ab2:
-            st.success("**B Videosu (Test Grubu)**")
-            n2 = st.number_input("B Videosu Toplam Gösterim", min_value=1, value=52000)
-            x2 = st.number_input("B Videosu Toplam Tıklama/Beğeni", min_value=0, value=1450)
-            
-        if st.button("İstatistiksel Anlamlılığı Test Et", type="primary"):
-            p1 = x1 / n1
-            p2 = x2 / n2
-            p_pool = (x1 + x2) / (n1 + n2)
-            se = math.sqrt(p_pool * (1 - p_pool) * (1/n1 + 1/n2))
-            
-            if se == 0:
-                st.warning("Veriler hesaplama için yetersiz veya hatalı.")
-            else:
-                z_score = abs(p1 - p2) / se
-                p_value = 0.5 * math.erfc(z_score / math.sqrt(2)) * 2 
-                
-                c_oran1, c_oran2, c_z = st.columns(3)
-                c_oran1.metric("A Grubu Etkileşim Oranı", f"% {p1*100:.2f}")
-                c_oran2.metric("B Grubu Etkileşim Oranı", f"% {p2*100:.2f}")
-                c_z.metric("Hesaplanan Z-Skoru", f"{z_score:.2f}")
-                
-                st.write(f"**P-Değeri (Olasılık):** {p_value:.5f}")
-                
-                if p_value < 0.05:
-                    st.success(f"🏆 BİLİMSEL SONUÇ: H0 Hipotezi reddedildi! Fark istatistiksel olarak %95 oranında anlamlıdır. (P < 0.05). Bu bir tesadüf değil!")
-                else:
-                    st.error("📉 BİLİMSEL SONUÇ: Fark istatistiksel olarak anlamlı DEĞİLDİR (P > 0.05). Aradaki fark tamamen rastgeledir.")
+        with col_ab1: n1 = st.number_input("A İzlenme", value=50000); x1 = st.number_input("A Beğeni", value=1200)
+        with col_ab2: n2 = st.number_input("B İzlenme", value=52000); x2 = st.number_input("B Beğeni", value=1450)
+        if st.button("Z-Test Yap"):
+            p1, p2 = x1/n1, x2/n2; p_pool = (x1+x2)/(n1+n2)
+            se = math.sqrt(p_pool*(1-p_pool)*(1/n1+1/n2))
+            z = abs(p1-p2)/se; p_val = 0.5 * math.erfc(z/math.sqrt(2)) * 2
+            st.metric("Z-Skoru", f"{z:.2f}"); st.write(f"**P-Değeri:** {p_val:.5f}")
+            if p_val < 0.05: st.success("Sonuç: Fark İstatistiksel Olarak Anlamlıdır! (Tesadüf Değil)")
+            else: st.error("Sonuç: Fark Anlamlı Değildir. Tamamen rastgele.")
 
-    # ---------------------------------------------------------
-    # MODÜL 3: Üstel Sönüm (Exponential Decay) Yarı Ömür
-    # ---------------------------------------------------------
+    # MODÜL 3: ÜSTEL SÖNÜM
     elif "3." in secilen_modul:
-        st.markdown("### 3. İçerik Yarı Ömrü (Üstel Sönüm / Exponential Decay)")
-        st.caption("Matematiksel Formül: N(t) = N₀ * e^(-λt). Viral bir videonun izlenme hızının zamanla nasıl söndüğünü hesaplar.")
-        
-        col_us1, col_us2, col_us3 = st.columns(3)
-        n0 = col_us1.number_input("İlk Gün (Zirve) İzlenme Sayısı (N₀)", min_value=1, value=10000)
-        nt = col_us2.number_input("Şu Anki Günlük İzlenme Sayısı (Nₜ)", min_value=1, value=2500)
-        t_gecen = col_us3.number_input("Aradan Geçen Gün Sayısı (t)", min_value=1, value=4)
-        
-        if st.button("Yarı Ömrü ve Çürüme Hızını Hesapla", type="primary"):
-            if nt >= n0:
-                st.warning("Şu anki izlenme ilk günden büyük olamaz (Sönüm gerçekleşmiyor!)")
-            else:
-                lambda_sabiti = -math.log(nt / n0) / t_gecen
-                yari_omur = math.log(2) / lambda_sabiti
-                
-                st.info(f"**Sönüm Sabiti (λ):** {lambda_sabiti:.4f} (Videonuz günde % {lambda_sabiti*100:.1f} ivme kaybediyor.)")
-                st.warning(f"⏳ **Videonun Yarı Ömrü:** {yari_omur:.1f} Gün. (Bu video her {yari_omur:.1f} günde bir, ivmesinin yarısını kaybedecek.)")
-                
-                gunler = list(range(0, 15))
-                projeksiyon = [n0 * math.exp(-lambda_sabiti * gun) for gun in gunler]
-                
-                df_grafik = pd.DataFrame({"Günler": gunler, "Günlük İzlenme Beklentisi": projeksiyon})
-                st.line_chart(df_grafik.set_index("Günler"))
+        n0 = st.number_input("Başlangıç İzlenmesi", value=10000)
+        nt = st.number_input("Şu Anki İzlenme", value=2500)
+        t = st.number_input("Geçen Gün", value=4)
+        if st.button("Yarı Ömür Hesapla"):
+            if nt < n0:
+                lam = -math.log(nt/n0)/t; half = math.log(2)/lam
+                st.warning(f"⏳ **Videonun Yarı Ömrü:** {half:.1f} Gün.")
+                st.line_chart(pd.DataFrame({"Gün": range(15), "İzlenme": [n0*math.exp(-lam*g) for g in range(15)]}).set_index("Gün"))
+            else: st.error("Şu anki izlenme başlangıçtan büyük olamaz.")
 
-    # ---------------------------------------------------------
-    # MODÜL 4: MONTE CARLO SİMÜLASYONU
-    # ---------------------------------------------------------
+    # MODÜL 4: MONTE CARLO
     elif "4." in secilen_modul:
-        st.markdown("### 4. Monte Carlo Simülasyonu (Risk ve İhtimal Analizi)")
-        st.caption("Geçmiş verilerinize dayanarak bilgisayar ortamında rastgele 1.000 farklı evren yaratın. Bir sonraki videonuzun viral olma ihtimalini hesaplayın.")
+        ort = st.number_input("Ortalama İzlenme (μ)", value=15000)
+        sap = st.number_input("Sapma (σ)", value=4000)
+        hedef = st.number_input("Hedef İzlenme", value=20000)
+        if st.button("1000 Simülasyon Başlat"):
+            with st.spinner("Zarlar atılıyor..."):
+                sims = np.where(np.random.normal(ort, sap, 1000) < 0, 0, np.random.normal(ort, sap, 1000))
+                basari = len(sims[sims >= hedef])
+                st.line_chart(pd.DataFrame({"Frekans": np.histogram(sims, bins=40)[0]}, index=np.round(np.histogram(sims, bins=40)[1][:-1], 0).astype(int)))
+                st.metric("Hedefe Ulaşma İhtimali", f"% {basari/10}")
 
-        col_mc1, col_mc2, col_mc3 = st.columns(3)
-        mc_ort = col_mc1.number_input("Videolarınızın Ortalama İzlenmesi (μ)", min_value=1, value=15000)
-        mc_sapma = col_mc2.number_input("İzlenme Dalgalanması (Standart Sapma - σ)", min_value=1, value=4000)
-        mc_hedef = col_mc3.number_input("Viral Hedefiniz (İstenen İzlenme)", min_value=1, value=20000)
-
-        if st.button("1.000 Farklı Senaryoyu Simüle Et", type="primary"):
-            with st.spinner("Zarlar atılıyor, 1.000 farklı paralel evren simüle ediliyor..."):
-                time.sleep(1)
-                sim_sayisi = 1000
-                
-                simulasyonlar = np.random.normal(mc_ort, mc_sapma, sim_sayisi)
-                simulasyonlar = np.where(simulasyonlar < 0, 0, simulasyonlar)
-                
-                basarili_senaryolar = len(simulasyonlar[simulasyonlar >= mc_hedef])
-                ihtimal = (basarili_senaryolar / sim_sayisi) * 100
-                
-                counts, bins = np.histogram(simulasyonlar, bins=40)
-                df_hist = pd.DataFrame({"Senaryo Frekansı": counts}, index=np.round(bins[:-1], 0).astype(int))
-                
-                st.line_chart(df_hist)
-                
-                st.subheader("Monte Carlo Simülasyon Sonuçları")
-                c_iht, c_min, c_max = st.columns(3)
-                c_iht.metric("Hedefe Ulaşma İhtimali", f"% {ihtimal:.1f}")
-                c_min.metric("En Kötü Senaryo (Tahmin)", f"{int(np.min(simulasyonlar)):,}")
-                c_max.metric("En İyi Senaryo (Tahmin)", f"{int(np.max(simulasyonlar)):,}")
-
-                if ihtimal > 75:
-                    st.success(f"BİLİMSEL SONUÇ: Çok Yüksek İhtimal! 1.000 senaryonun {basarili_senaryolar} tanesinde hedefi geçtiniz.")
-                elif ihtimal > 30:
-                    st.warning(f"BİLİMSEL SONUÇ: Orta İhtimal. 1.000 senaryonun {basarili_senaryolar} tanesinde hedefe ulaştınız.")
-                else:
-                    st.error(f"BİLİMSEL SONUÇ: Düşük İhtimal. 1.000 senaryonun sadece {basarili_senaryolar} tanesinde hedefe ulaştınız.")
-
-    # ---------------------------------------------------------
-    # MODÜL 5: İZLENME DALGALANMASI (BOLLINGER BANTLARI)
-    # ---------------------------------------------------------
+    # MODÜL 5: BOLLINGER BANTLARI
     elif "5." in secilen_modul:
-        st.markdown("### 5. İzlenme Dalgalanması ve Kırılma Noktası (Bollinger Bantları)")
-        st.caption("Son 10 videonuzun verisini girerek kanalınızın 'Dalgalanma Katsayısını (CV)' ve bir videonun viral veya çöküş sayılması için gereken sınır değerleri hesaplayın.")
+        data = [st.number_input(f"Video {i}", value=1000+i*50) for i in range(1, 11)]
+        if st.button("Bantları Çiz"):
+            m = np.mean(data); s = np.std(data)
+            st.info(f"🚀 **Viral Kırılma Noktası (Üst Bant): {int(m + 2*s):,}**")
+            st.error(f"📉 **Çöküş Sınırı (Alt Bant): {int(max(0, m - 2*s)):,}**")
+            st.line_chart(pd.DataFrame({"İzlenme": data, "Ortalama": [m]*10, "Viral": [m+2*s]*10, "Flop": [max(0, m-2*s)]*10}))
 
-        st.write("**Son 10 Videonuzun İzlenme Sayıları (Eskiden Yeniye):**")
-        c1, c2, c3, c4, c5 = st.columns(5)
-        d1 = c1.number_input("1. Video", value=1000, min_value=0)
-        d2 = c2.number_input("2. Video", value=1200, min_value=0)
-        d3 = c3.number_input("3. Video", value=950, min_value=0)
-        d4 = c4.number_input("4. Video", value=1100, min_value=0)
-        d5 = c5.number_input("5. Video", value=1050, min_value=0)
-        
-        c6, c7, c8, c9, c10 = st.columns(5)
-        d6 = c6.number_input("6. Video", value=1300, min_value=0)
-        d7 = c7.number_input("7. Video", value=1150, min_value=0)
-        d8 = c8.number_input("8. Video", value=900, min_value=0)
-        d9 = c9.number_input("9. Video", value=1400, min_value=0)
-        d10 = c10.number_input("10. Video (En Yeni)", value=1250, min_value=0)
+    # MODÜL 6: MARKOV ZİNCİRLERİ
+    elif "6." in secilen_modul:
+        mevcut = st.radio("Son Videonuzun Durumu:", ["Çöküş", "Normal", "Viral"])
+        col_m1, col_m2, col_m3 = st.columns(3)
+        probs = {"Çöküş": col_m1.slider("Çöküşten Virale %", 0, 100, 10), 
+                 "Normal": col_m2.slider("Normalden Virale %", 0, 100, 30), 
+                 "Viral": col_m3.slider("Viralden Tekrar Virale %", 0, 100, 20)}
+        if st.button("Olasılık Tahmini Yap"):
+            st.metric("Bir Sonraki Videonun Viral Olma Olasılığı", f"% {probs[mevcut]}")
 
-        if st.button("Dalgalanma ve Kırılma Analizi Yap", type="primary"):
-            veri_seti = [d1, d2, d3, d4, d5, d6, d7, d8, d9, d10]
-            ortalama = np.mean(veri_seti)
-            standart_sapma = np.std(veri_seti)
-            
-            cv = (standart_sapma / ortalama) * 100 if ortalama > 0 else 0
-            
-            ust_bant = ortalama + (2 * standart_sapma)
-            alt_bant = ortalama - (2 * standart_sapma)
-            if alt_bant < 0: alt_bant = 0
-
-            st.subheader("Matematiksel Kanal Profili")
-            col_m1, col_m2, col_m3 = st.columns(3)
-            col_m1.metric("Ortalama İzlenme (μ)", f"{int(ortalama):,}")
-            col_m2.metric("Dalgalanma Katsayısı (CV)", f"% {cv:.1f}")
-            col_m3.metric("Standart Sapma (σ)", f"{int(standart_sapma):,}")
-
-            st.subheader("Viral ve Çöküş (Flop) Sınırları")
-            st.info(f"🚀 **Viral Kırılma Noktası (Üst Bant): {int(ust_bant):,}**\n\nBir videonuzun algoritma tarafından 'Viral' olarak algılanıp ekstra öne çıkarılması için izlenmesinin bu rakamı geçmesi gerekir.")
-            st.error(f"📉 **Çöküş Sınırı (Alt Bant): {int(alt_bant):,}**\n\nBir videonuz bu rakamın altında kalıyorsa, kancanız (hook) başarısız olmuş demektir.")
-
-            df_dalga = pd.DataFrame({
-                "Videolar": [f"V{i}" for i in range(1, 11)],
-                "İzlenme": veri_seti,
-                "Ortalama": [ortalama] * 10,
-                "Viral Sınırı": [ust_bant] * 10,
-                "Çöküş Sınırı": [alt_bant] * 10
-            })
-            
-            st.line_chart(df_dalga.set_index("Videolar"))
-
-            if cv < 15:
-                st.success("Analiz: Kanalınız İNANILMAZ İSTİKRARLI. İzleyicileriniz çok sadık.")
-            elif cv < 40:
-                st.warning("Analiz: Kanalınızda NORMAL DALGALANMA var. Sağlıklı bir profil.")
-            else:
-                st.error("Analiz: Kanalınızda AŞIRI DALGALANMA var. Belirli bir nişe (sektöre) odaklanmalısınız.")
+    # MODÜL 7: PEARSON KORELASYONU
+    elif "7." in secilen_modul:
+        c_x, c_y = st.columns(2)
+        X = c_x.text_area("X Değişkeni (Örn: Süre - Virgülle ayırın)", "15, 30, 45, 60, 90")
+        Y = c_y.text_area("Y Değişkeni (Örn: İzlenme - Virgülle ayırın)", "5000, 12000, 8000, 15000, 20000")
+        if st.button("Korelasyon (r) Hesapla"):
+            try:
+                xl = [float(i) for i in X.split(",")]; yl = [float(i) for i in Y.split(",")]
+                r = np.corrcoef(xl, yl)[0, 1]
+                st.metric("Korelasyon Katsayısı (r)", f"{r:.3f}")
+                st.scatter_chart(pd.DataFrame({"X": xl, "Y": yl}), x="X", y="Y")
+            except: st.error("Hatalı veri formatı.")
