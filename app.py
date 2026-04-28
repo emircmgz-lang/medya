@@ -58,7 +58,7 @@ with tab_ana:
     with c2:
         st.success("**Senaryo Üretici**\nBoş sayfa sendromuna son! Saniye saniye kurgu hazırlayın.")
     with c3:
-        st.warning("**Veri Bilimi Laboratuvarı**\nA/B Hipotez Testleri, Üstel Sönüm ve Z-Skor analizleri yapın.")
+        st.warning("**Veri Bilimi Laboratuvarı**\nA/B Hipotez Testleri, Üstel Sönüm ve Simülasyon analizleri yapın.")
 
 # ==============================================================================
 # SEKME 1: AI İÇERİK ANALİZİ
@@ -159,7 +159,7 @@ with tab2:
             st.warning("Lütfen konu girin.")
 
 # ==============================================================================
-# SEKME 3: İLERİ VERİ BİLİMİ VE İSTATİSTİK LABORATUVARI (YENİ)
+# SEKME 3: İLERİ VERİ BİLİMİ VE İSTATİSTİK LABORATUVARI
 # ==============================================================================
 with tab_matematik:
     st.subheader("Veri Bilimi ve İstatistik Laboratuvarı")
@@ -168,7 +168,8 @@ with tab_matematik:
     secilen_modul = st.selectbox("Analiz Modeli", [
         "1. Etkileşim (ER) ve Varyans İstikrar Analizi", 
         "2. İstatistiksel A/B Hipotez Testi (Z-Test)", 
-        "3. İçerik Yarı Ömrü (Üstel Sönüm / Exponential Decay)"
+        "3. İçerik Yarı Ömrü (Üstel Sönüm / Exponential Decay)",
+        "4. Monte Carlo Simülasyonu (Olasılık ve Risk Analizi)"
     ])
     
     st.divider()
@@ -211,7 +212,7 @@ with tab_matematik:
     # ---------------------------------------------------------
     elif "2." in secilen_modul:
         st.markdown("### 2. İstatistiksel A/B Hipotez Testi (Z-Skoru)")
-        st.caption("İki farklı içeriğin etkileşim oranlarını kıyaslayın. Aradaki fark tesadüf mü, yoksa istatistiksel olarak kanıtlanmış mı? (H0 Hipotezi Reddi)")
+        st.caption("İki farklı içeriğin etkileşim oranlarını kıyaslayın. Aradaki fark tesadüf mü, yoksa istatistiksel olarak kanıtlanmış mı?")
         
         col_ab1, col_ab2 = st.columns(2)
         with col_ab1:
@@ -227,16 +228,13 @@ with tab_matematik:
             p1 = x1 / n1
             p2 = x2 / n2
             p_pool = (x1 + x2) / (n1 + n2)
-            # Standart Hata (Standard Error) Formülü
             se = math.sqrt(p_pool * (1 - p_pool) * (1/n1 + 1/n2))
             
             if se == 0:
                 st.warning("Veriler hesaplama için yetersiz veya hatalı.")
             else:
-                # Z-Skoru
                 z_score = abs(p1 - p2) / se
-                # P-Değeri hesaplama (math.erfc kullanımı)
-                p_value = 0.5 * math.erfc(z_score / math.sqrt(2)) * 2 # Çift kuyruklu test
+                p_value = 0.5 * math.erfc(z_score / math.sqrt(2)) * 2 
                 
                 c_oran1, c_oran2, c_z = st.columns(3)
                 c_oran1.metric("A Grubu Etkileşim Oranı", f"% {p1*100:.2f}")
@@ -246,39 +244,77 @@ with tab_matematik:
                 st.write(f"**P-Değeri (Olasılık):** {p_value:.5f}")
                 
                 if p_value < 0.05:
-                    st.success(f"🏆 **BİLİMSEL SONUÇ:** H0 Hipotezi reddedildi! Gruplar arasındaki fark **istatistiksel olarak %95 oranında anlamlıdır.** (P < 0.05). Hangi oran yüksekse o videonun kapağını/başlığını güvenle kullanabilirsiniz. Bu bir tesadüf değil!")
+                    st.success(f"🏆 BİLİMSEL SONUÇ: H0 Hipotezi reddedildi! Fark istatistiksel olarak %95 oranında anlamlıdır. (P < 0.05). Bu bir tesadüf değil!")
                 else:
-                    st.error("📉 **BİLİMSEL SONUÇ:** Gruplar arasındaki fark istatistiksel olarak **anlamlı DEĞİLDİR** (P > 0.05). Aradaki fark tamamen rastgeledir (Şans eseri). Her iki başlık da benzer performans gösteriyor.")
+                    st.error("📉 BİLİMSEL SONUÇ: Fark istatistiksel olarak anlamlı DEĞİLDİR (P > 0.05). Aradaki fark tamamen rastgeledir.")
 
     # ---------------------------------------------------------
     # MODÜL 3: Üstel Sönüm (Exponential Decay) Yarı Ömür
     # ---------------------------------------------------------
     elif "3." in secilen_modul:
         st.markdown("### 3. İçerik Yarı Ömrü (Üstel Sönüm / Exponential Decay)")
-        st.caption("Matematiksel Formül: N(t) = N₀ * e^(-λt). Viral bir videonun izlenme hızının zamanla nasıl söndüğünü (çürüdüğünü) ve ne zaman tamamen öleceğini hesaplar.")
+        st.caption("Matematiksel Formül: N(t) = N₀ * e^(-λt). Viral bir videonun izlenme hızının zamanla nasıl söndüğünü hesaplar.")
         
         col_us1, col_us2, col_us3 = st.columns(3)
         n0 = col_us1.number_input("İlk Gün (Zirve) İzlenme Sayısı (N₀)", min_value=1, value=10000)
         nt = col_us2.number_input("Şu Anki Günlük İzlenme Sayısı (Nₜ)", min_value=1, value=2500)
         t_gecen = col_us3.number_input("Aradan Geçen Gün Sayısı (t)", min_value=1, value=4)
         
-        if st.button("Videonun Yarı Ömrünü ve Çürüme Hızını Hesapla", type="primary"):
+        if st.button("Yarı Ömrü ve Çürüme Hızını Hesapla", type="primary"):
             if nt >= n0:
-                st.warning("Şu anki izlenme ilk günden büyük olamaz (Sönüm gerçekleşmiyor, tam tersi büyüme var!)")
+                st.warning("Şu anki izlenme ilk günden büyük olamaz (Sönüm gerçekleşmiyor!)")
             else:
-                # Lambda (Sönüm Sabiti) = -ln(Nt / N0) / t
                 lambda_sabiti = -math.log(nt / n0) / t_gecen
-                # Yarı ömür t(1/2) = ln(2) / lambda
                 yari_omur = math.log(2) / lambda_sabiti
                 
                 st.info(f"**Sönüm Sabiti (λ):** {lambda_sabiti:.4f} (Videonuz günde % {lambda_sabiti*100:.1f} ivme kaybediyor.)")
-                st.warning(f"⏳ **Videonun Yarı Ömrü:** {yari_omur:.1f} Gün. (Bu video her {yari_omur:.1f} günde bir, günlük izlenme sayısının yarısını kaybedecek.)")
+                st.warning(f"⏳ **Videonun Yarı Ömrü:** {yari_omur:.1f} Gün. (Bu video her {yari_omur:.1f} günde bir, ivmesinin yarısını kaybedecek.)")
                 
-                # Grafik Çizimi (Gelecek 14 gün projeksiyonu)
                 gunler = list(range(0, 15))
                 projeksiyon = [n0 * math.exp(-lambda_sabiti * gun) for gun in gunler]
                 
                 df_grafik = pd.DataFrame({"Günler": gunler, "Günlük İzlenme Beklentisi": projeksiyon})
                 st.line_chart(df_grafik.set_index("Günler"))
+
+    # ---------------------------------------------------------
+    # MODÜL 4: MONTE CARLO SİMÜLASYONU (YENİ)
+    # ---------------------------------------------------------
+    elif "4." in secilen_modul:
+        st.markdown("### 4. Monte Carlo Simülasyonu (Risk ve İhtimal Analizi)")
+        st.caption("Geçmiş verilerinize dayanarak bilgisayar ortamında rastgele 1.000 farklı evren yaratın. Bir sonraki videonuzun viral olma ihtimalini Çan Eğrisi (Normal Dağılım) ile hesaplayın.")
+
+        col_mc1, col_mc2, col_mc3 = st.columns(3)
+        mc_ort = col_mc1.number_input("Videolarınızın Ortalama İzlenmesi (μ)", min_value=1, value=15000)
+        mc_sapma = col_mc2.number_input("İzlenme Dalgalanması (Standart Sapma - σ)", min_value=1, value=4000)
+        mc_hedef = col_mc3.number_input("Viral Hedefiniz (İstenen İzlenme)", min_value=1, value=20000)
+
+        if st.button("1.000 Farklı Senaryoyu Simüle Et", type="primary"):
+            with st.spinner("Zarlar atılıyor, 1.000 farklı paralel evren simüle ediliyor..."):
+                time.sleep(1) # Efekt için ufak bekleme
+                sim_sayisi = 1000
                 
-                st.success("Tavsiye: Algoritmik çürüme (decay) başlamış. Grafik tabana inmeden önce yeni bir içerik yayınlayarak kitleyi tazelemelisiniz.")
+                # Numpy ile normal dağılım (Gaussian) simülasyonu
+                simulasyonlar = np.random.normal(mc_ort, mc_sapma, sim_sayisi)
+                simulasyonlar = np.where(simulasyonlar < 0, 0, simulasyonlar) # Eksi izlenme olamayacağı için sıfıra eşitliyoruz
+                
+                basarili_senaryolar = len(simulasyonlar[simulasyonlar >= mc_hedef])
+                ihtimal = (basarili_senaryolar / sim_sayisi) * 100
+                
+                # Çan Eğrisi / Histogram Verisi Oluşturma
+                counts, bins = np.histogram(simulasyonlar, bins=40)
+                df_hist = pd.DataFrame({"Senaryo Frekansı": counts}, index=np.round(bins[:-1], 0).astype(int))
+                
+                st.line_chart(df_hist) # Çan eğrisini çok net gösterir
+                
+                st.subheader("Monte Carlo Simülasyon Sonuçları")
+                c_iht, c_min, c_max = st.columns(3)
+                c_iht.metric("Hedefe Ulaşma İhtimali", f"% {ihtimal:.1f}")
+                c_min.metric("En Kötü Senaryo (Tahmin)", f"{int(np.min(simulasyonlar)):,}")
+                c_max.metric("En İyi Senaryo (Tahmin)", f"{int(np.max(simulasyonlar)):,}")
+
+                if ihtimal > 75:
+                    st.success(f"BİLİMSEL SONUÇ: Çok Yüksek İhtimal! 1.000 senaryonun {basarili_senaryolar} tanesinde hedefi geçtiniz. Bu videonun hedeflenen izlenmeye ulaşması istatistiksel olarak çok güçlü.")
+                elif ihtimal > 30:
+                    st.warning(f"BİLİMSEL SONUÇ: Orta İhtimal. 1.000 senaryonun {basarili_senaryolar} tanesinde hedefe ulaştınız. Ancak dalgalanma (σ) yüksek, kanca cümlenizi güçlendirmelisiniz.")
+                else:
+                    st.error(f"BİLİMSEL SONUÇ: Düşük İhtimal. 1.000 senaryonun sadece {basarili_senaryolar} tanesinde hedefe ulaştınız. Veriler bu hedefin mevcut standart sapma ve ortalamanızla zor olduğunu söylüyor.")
