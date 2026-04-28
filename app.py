@@ -35,7 +35,7 @@ else:
     genai.configure(api_key=API_KEY)
     model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"temperature": 0.5})
 
-st.title("Yapay Zeka ve Veri Bilimi Ajansı (Ultimate)")
+st.title("Yapay Zeka ve Veri Bilimi Ajansı(made by emircmgz)")
 
 # ==============================================================================
 # 3. MEGA SEKMELER
