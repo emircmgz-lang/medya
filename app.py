@@ -6,7 +6,7 @@ import tempfile
 import time
 
 # 1. Sayfa Ayarları
-st.set_page_config(page_title="AI Sosyal Medya Ajansı", layout="centered")
+st.set_page_config(page_title="AI Sosyal Medya Ajansı", layout="wide")
 
 # 2. Kütüphane Yükleme Kontrolü
 try:
@@ -31,13 +31,14 @@ else:
 
 st.title("Yapay Zeka Sosyal Medya Ajansı")
 
-# --- 5 SEKME OLDU (Ana Sayfa + 4 Araç) ---
-tab_ana, tab1, tab2, tab3, tab4 = st.tabs([
+# --- 6 SEKME (Ana Sayfa + 5 Araç) ---
+tab_ana, tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "Ana Sayfa", 
     "İçerik Analizi", 
     "Profil Check-up", 
     "Senaryo Üretici",
-    "Kriz Yönetimi"
+    "Kriz Yönetimi",
+    "İçerik Çoğaltıcı"
 ])
 
 # ==============================================================================
@@ -46,20 +47,24 @@ tab_ana, tab1, tab2, tab3, tab4 = st.tabs([
 with tab_ana:
     st.subheader("Hoş Geldiniz! Sosyal Medyayı Birlikte Yönetelim.")
     st.markdown("""
-    Bu platform, içerik üreticileri ve markalar için özel olarak tasarlanmış **Yapay Zeka Destekli bir Sosyal Medya Asistanıdır.** Arka planda çalışan güçlü algoritma sayesinde videolarınızı yayınlamadan önce test edebilir, marka kimliğinizi oturtabilir, kriz anlarını yönetebilir ve senaryolar üretebilirsiniz.
+    Bu platform, içerik üreticileri ve markalar için özel olarak tasarlanmış **Yapay Zeka Destekli bir Sosyal Medya Asistanıdır.** Arka planda çalışan güçlü algoritma sayesinde videolarınızı yayınlamadan önce test edebilir, marka kimliğinizi oturtabilir, kriz anlarını yönetebilir ve tek bir fikri tüm platformlar için çoğaltabilirsiniz.
     """)
     st.divider()
     
-    # 4 Özelliği şık kolonlarla tanıtıyoruz
-    c1, c2, c3, c4 = st.columns(4)
+    # 5 Özelliği şık kolonlarla tanıtıyoruz (Üstte 3, altta 2)
+    c1, c2, c3 = st.columns(3)
     with c1:
         st.info("**İçerik Analizi**\nVideonuzun viral skorunu ve risk bölgelerini öğrenin.")
     with c2:
         st.success("**Profil Check-up**\nBio ve Grid (Akış) analiziyle marka kimliğinizi optimize edin.")
     with c3:
         st.warning("**Senaryo Üretici**\nBoş sayfa sendromuna son! Saniye saniye çekim planı hazırlayın.")
+        
+    c4, c5 = st.columns(2)
     with c4:
         st.error("**Kriz Yönetimi**\nZorlu yorumlara ve linç girişimlerine karşı zekice cevaplar üretin.")
+    with c5:
+        st.info("**İçerik Çoğaltıcı**\nTek bir fikri Twitter, Insta ve TikTok için anında 3'e katlayın.")
         
     st.divider()
     st.subheader("Proje Notları ve Hedefler")
@@ -376,7 +381,7 @@ Hedef Kitle: {s_hedef}
                 st.download_button(label="📄 Bu Senaryoyu İndir (.txt)", data=rapor_icerigi, file_name="Video_Senaryosu.txt", mime="text/plain")
 
 # ==============================================================================
-# SEKME 4: KRİZ VE TOPLULUK YÖNETİCİSİ (YENİ EKLENDİ)
+# SEKME 4: KRİZ VE TOPLULUK YÖNETİCİSİ
 # ==============================================================================
 with tab4:
     st.subheader("Kriz ve Topluluk Yöneticisi")
@@ -418,12 +423,10 @@ with tab4:
             if kriz_sonuc:
                 st.success("Kriz Stratejisi Hazır!")
                 
-                # Risk ve Analiz
                 st.error(f"**Risk Seviyesi:** {kriz_sonuc.get('risk_seviyesi', '')}")
                 st.write(f"**Yorumun Psikolojik Analizi:** {kriz_sonuc.get('yorum_analizi', '')}")
                 st.divider()
                 
-                # Cevap Seçenekleri
                 st.subheader("Stratejik Cevap Seçenekleri")
                 c1, c2, c3 = kriz_sonuc.get('cevap_1', {}), kriz_sonuc.get('cevap_2', {}), kriz_sonuc.get('cevap_3', {})
                 
@@ -431,7 +434,6 @@ with tab4:
                 st.success(f"**Strateji 2 ({c2.get('strateji', '')}):**\n\n{c2.get('metin', '')}")
                 st.warning(f"**Strateji 3 ({c3.get('strateji', '')}):**\n\n{c3.get('metin', '')}")
                 
-                # --- RAPOR İNDİRME BÖLÜMÜ ---
                 rapor_icerigi = f"""--- KRİZ YÖNETİMİ VE TOPLULUK RAPORU ---
 Gelen Yorum: {k_yorum}
 Seçilen Ton: {k_ton}
@@ -442,9 +444,76 @@ Psikolojik Analiz: {kriz_sonuc.get('yorum_analizi', '')}
 
 -- YANIT SEÇENEKLERİ --
 1. {c1.get('strateji', '')}: {c1.get('metin', '')}
-
 2. {c2.get('strateji', '')}: {c2.get('metin', '')}
-
 3. {c3.get('strateji', '')}: {c3.get('metin', '')}
 """
                 st.download_button(label="📄 Bu Kriz Raporunu İndir (.txt)", data=rapor_icerigi, file_name="Kriz_Yonetim_Raporu.txt", mime="text/plain")
+
+# ==============================================================================
+# SEKME 5: İÇERİK ÇOĞALTICI (ZAMAN MAKİNESİ) (YENİ)
+# ==============================================================================
+with tab5:
+    st.subheader("İçerik Çoğaltıcı (Zaman Makinesi)")
+    st.markdown("Uzun uzun düşündüğünüz tek bir fikri buraya yazın. Yapay zeka bu fikri X (Twitter), Instagram ve TikTok için en uygun formata dönüştürerek sizi 3 kat fazla iş yükünden kurtarsın.")
+    
+    cogalt_fikir = st.text_area("Ana Fikriniz / Anlatmak İstediğiniz Konu", placeholder="Örn: Yapay zekanın eğitime etkileri hakkında uzun bir yazı...", height=150)
+    
+    def ai_icerik_cogalt(fikir):
+        prompt = f"""
+        Sen bir dijital pazarlama uzmanısın. Metinlerde emoji kullanma.
+        Aşağıdaki ana fikri al ve 3 farklı platformun dinamiğine göre yeniden yaz.
+        Ana Fikir: "{fikir}"
+        
+        İstenen Formatlar:
+        1. X (Twitter) Flood: Bilgi veren, teknik, madde madde giden 3 tweetlik bir zincir.
+        2. Instagram Carousel (Kaydırmalı Post): Her slaytta ne yazacağını belirten 3-4 slaytlık bir metin.
+        3. TikTok / Shorts: Enerjik, 30 saniyelik bir kısa video senaryosu.
+        
+        JSON formatında cevap ver:
+        {{
+            "twitter_flood": "Tweet 1: ...\n\nTweet 2: ...\n\nTweet 3: ...",
+            "instagram_carousel": "Slayt 1 (Kapak): ...\nSlayt 2: ...\nSlayt 3: ...",
+            "tiktok_senaryo": "0-3 sn (Kanca): ...\n3-15 sn: ...\n15-30 sn: ..."
+        }}
+        """
+        try:
+            response = model.generate_content([prompt])
+            match = re.search(r'\{.*\}', response.text, re.DOTALL)
+            return json.loads(match.group(0)) if match else None
+        except Exception as e:
+            return None
+
+    if st.button("Fikri 3 Platform İçin Çoğalt", type="primary", use_container_width=True):
+        if not cogalt_fikir:
+            st.warning("Lütfen çoğaltılacak ana fikri girin!")
+        else:
+            with st.spinner("İçerik Çoğaltıcı Çalışıyor..."):
+                cogalt_sonuc = ai_icerik_cogalt(cogalt_fikir)
+            
+            if cogalt_sonuc:
+                st.success("İçeriğiniz 3 farklı platform için başarıyla dönüştürüldü!")
+                
+                c1, c2, c3 = st.columns(3)
+                with c1:
+                    st.info("**X (Twitter) Flood**")
+                    st.write(cogalt_sonuc.get("twitter_flood", ""))
+                with c2:
+                    st.success("**Instagram Carousel**")
+                    st.write(cogalt_sonuc.get("instagram_carousel", ""))
+                with c3:
+                    st.warning("**TikTok / Shorts**")
+                    st.write(cogalt_sonuc.get("tiktok_senaryo", ""))
+                
+                rapor_icerigi = f"""--- İÇERİK ÇOĞALTICI RAPORU ---
+Ana Fikir: {cogalt_fikir}
+
+-- X (TWITTER) FLOOD --
+{cogalt_sonuc.get("twitter_flood", "")}
+
+-- INSTAGRAM CAROUSEL --
+{cogalt_sonuc.get("instagram_carousel", "")}
+
+-- TIKTOK / SHORTS SENARYOSU --
+{cogalt_sonuc.get("tiktok_senaryo", "")}
+"""
+                st.download_button(label="📄 Bu Çoklu İçerik Raporunu İndir (.txt)", data=rapor_icerigi, file_name="Coklu_Icerik_Raporu.txt", mime="text/plain")
